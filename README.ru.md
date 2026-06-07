@@ -34,7 +34,7 @@
 - **Двуязычный** интерфейс (русский + английский).
 
 ## 🚀 Установка
-1. **Скачайте** скилл: [`fitness-tracker.zip`](https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip).
+1. **Скачайте** скилл: [`fitness-tracker.zip`](https://fitness-tracker-skill.pages.dev/fitness-tracker.zip).
 2. **Пройдите пошаговую инструкцию** → **https://fitness-tracker-skill.pages.dev**
    (RU/EN). Там разобраны неочевидные моменты: открытие **доступа к сети** песочницы,
    загрузка скилла, создание **проекта**, подготовка **Notion** и **сохранение конфига**

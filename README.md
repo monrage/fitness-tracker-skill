@@ -35,7 +35,7 @@ you →  weekly summary
 - **Bilingual** UX (Russian + English).
 
 ## 🚀 Install
-1. **Download** the skill: [`fitness-tracker.zip`](https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip).
+1. **Download** the skill: [`fitness-tracker.zip`](https://fitness-tracker-skill.pages.dev/fitness-tracker.zip).
 2. **Follow the step-by-step guide** → **https://fitness-tracker-skill.pages.dev**
    (RU/EN). It covers the easy-to-miss bits: opening sandbox **network access**,
    uploading the skill, creating a **project**, preparing **Notion**, and **saving the
