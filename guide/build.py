@@ -16,7 +16,7 @@ TEMPLATE = os.path.join(SELF, "template.html")
 OUT = os.path.join(ROOT, "docs", "index.html")
 
 MIME = {".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
-SLOTS = {"{{IMG1}}": "1.png", "{{IMG2}}": "2.png", "{{IMG3}}": "3.png"}
+SLOTS = {}  # guide is now fully CSS mockups — no embedded screenshots
 
 
 def data_uri(path):

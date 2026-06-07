@@ -29,6 +29,15 @@
     font:600 13px var(--sans);padding:6px 12px;border-radius:999px;cursor:pointer}
   .lb[aria-pressed="true"]{background:var(--accent);color:#1a1916}
   .flag{width:19px;height:13px;border-radius:2px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+  .lb.gh{padding:6px 9px;color:var(--muted)}.lb.gh:hover{color:var(--ink)}
+  .ghmark{width:17px;height:17px;fill:currentColor;display:block}
+  .lbsep{width:1px;height:18px;background:var(--line);align-self:center;margin:0 1px}
+  .footlinks{margin-top:10px}.footlinks a{color:var(--muted);font-weight:600}
+  .tabs{display:flex;gap:6px;margin:16px 0 0;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#2a2825;color:var(--muted);border-radius:9px;padding:8px 14px;font:600 14px var(--sans);cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--accent);color:#1a1916;border-color:transparent}
+  .tabpanel{display:none;margin-top:6px}
+  .tabpanel[data-show="1"]{display:block}
 
   header.hero{padding:64px 20px 30px;text-align:center}
   .logo{width:64px;height:64px;border-radius:18px;margin:0 auto 18px;display:grid;place-items:center;
@@ -116,13 +125,57 @@
   .menu>div{padding:10px 13px;font-size:14px;border-top:1px solid #353330}
   .menu>div:first-child{border-top:0}
   .menu .sel{background:rgba(217,119,87,.18);color:#f3b69c;font-weight:600}
+  /* Capabilities mockup */
+  .cap-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:13px 0;border-top:1px solid var(--line)}
+  .cap-row:first-child{border-top:0}
+  .cap-row .t{font-weight:600;font-size:14px}
+  .cap-row .d{color:var(--muted);font-size:12px;max-width:62%;margin-top:3px}
+  .tgl{flex:0 0 auto;width:38px;height:22px;border-radius:999px;background:#3b82f6;position:relative;margin-top:3px}
+  .tgl::after{content:"";position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:#fff}
+  .allow{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .allow .hd{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .allow .lbl{font-weight:600;font-size:13.5px}
+  .allow .lbl small{display:block;color:var(--muted);font-weight:400;font-size:11.5px;margin-top:2px}
+  .ddl{flex:0 0 auto;background:#2a2825;border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:13px;color:var(--ink)}
+  .ddmenu{margin-top:8px;max-width:215px;margin-left:auto;background:#2c2a27;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .ddmenu div{padding:9px 12px;font-size:13px;display:flex;justify-content:space-between;border-top:1px solid #353330}
+  .ddmenu div:first-child{border-top:0}
+  .ddmenu .sel{background:rgba(217,119,87,.16);color:#f3b69c}
+  .infoln{display:flex;gap:8px;align-items:flex-start;background:#1a1917;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .adom{margin-top:12px}
+  .adom .lab{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .adom .inp{display:flex;gap:8px}
+  .adom .box{flex:1;background:#2a2825;border:1px solid var(--line);border-radius:8px;padding:8px 11px;color:var(--faint);font-size:12.5px}
+  .adom .add{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .chip{display:flex;justify-content:space-between;align-items:center;background:#2a2825;border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-top:8px;font-family:var(--mono);font-size:12.5px}
+  .chip .tr{color:var(--faint)}
+  .mk{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--mark);color:#1a1916;font-weight:800;font-size:12px;box-shadow:0 2px 6px rgba(255,122,24,.5);vertical-align:middle;margin-left:6px}
+  /* Skills (Customize) mockup */
+  .smock .stop{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:15px}
+  .smock .sback{color:var(--muted)}
+  .scols{display:grid;grid-template-columns:158px 1fr}
+  .snav{padding:14px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+  .sproj{background:#2a2825;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:13px;color:var(--muted)}
+  .snavit{padding:8px 11px;border-radius:8px;font-size:14px;color:var(--muted)}
+  .snavit.on{background:#34322e;color:var(--ink);font-weight:600}
+  .smain{padding:14px 16px}
+  .smhd{display:flex;align-items:center;gap:10px}
+  .smhd .grow{flex:1}.smhd .sicon{color:var(--muted)}
+  .smhd .splus{width:28px;height:28px;border-radius:8px;background:#34322e;border:1px solid var(--line);display:inline-grid;place-items:center;font-size:16px;color:var(--ink)}
+  .smenu{width:230px;margin-left:auto;margin-top:10px;background:#2c2a27;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .smenu.sub{width:236px;margin-right:-14px}
+  .smenu>div{padding:10px 13px;font-size:13.5px;border-top:1px solid #353330}
+  .smenu>div:first-child{border-top:0}
+  .smenu .sel{background:rgba(217,119,87,.16);color:#f3b69c;font-weight:600}
   h2.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin:46px 0 0}
   footer{text-align:center;color:var(--faint);font-size:13px;margin-top:48px;padding-top:24px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body data-lang="ru">
 
-<div class="langbar" role="group" aria-label="Language">
+<div class="langbar" role="group" aria-label="Language & repository">
+  <a class="lb gh" href="https://github.com/monrage/fitness-tracker-skill" target="_blank" rel="noopener" title="GitHub — fitness-tracker-skill"><svg class="ghmark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+  <span class="lbsep"></span>
   <button class="lb" data-set="ru" aria-pressed="true" title="Русский">
     <svg class="flag" viewBox="0 0 9 6" aria-hidden="true"><rect width="9" height="6" fill="#fff"/><rect y="2" width="9" height="2" fill="#0039A6"/><rect y="4" width="9" height="2" fill="#D52B1E"/></svg>RU</button>
   <button class="lb" data-set="en" aria-pressed="false" title="English">
@@ -167,11 +220,11 @@
     <div class="opt"><span class="tag alt"><span class="ru">проще</span><span class="en">easier</span></span><div><b>All domains</b> — <span class="ru">разрешить все сайты сразу.</span><span class="en">allow every site at once.</span></div></div>
 
     <figure>
-      <img class="shot" src="{{IMG1}}" alt="Capabilities: All domains">
+      <div class="mock"><div class="mbar"><i class="d1"></i><i class="d2"></i><i class="d3"></i><span class="ttl">Settings · Capabilities</span></div><div class="mbody"><div class="cap-row"><div><div class="t">Cloud code execution and file creation</div><div class="d">Required for skills.</div></div><div class="tgl"></div></div><div class="cap-row"><div><div class="t">Allow network egress</div><div class="d">Lets the sandbox reach the internet.</div></div><div class="tgl"></div></div><div class="allow"><div class="hd"><div class="lbl">Domain allowlist<small>Choose which domains the sandbox can access</small></div><div class="ddl">All domains ▾</div></div><div class="ddmenu"><div>None</div><div>Package managers only</div><div class="sel">All domains ✓</div></div><div class="infoln"><span>ℹ</span><span>Claude can access all domains on the internet.</span></div></div></div></div>
       <figcaption><span class="ru">Вариант «All domains» — открыть доступ ко всем сайтам (быстро, менее безопасно)</span><span class="en">"All domains" — allow every site (quick, less safe)</span></figcaption>
     </figure>
     <figure>
-      <img class="shot" src="{{IMG2}}" alt="Capabilities: Package managers only + api.notion.com">
+      <div class="mock"><div class="mbar"><i class="d1"></i><i class="d2"></i><i class="d3"></i><span class="ttl">Settings · Capabilities</span></div><div class="mbody"><div class="cap-row"><div><div class="t">Cloud code execution and file creation</div><div class="d">Required for skills.</div></div><div class="tgl"></div></div><div class="cap-row"><div><div class="t">Allow network egress</div><div class="d">Lets the sandbox reach the internet.</div></div><div class="tgl"></div></div><div class="allow"><div class="hd"><div class="lbl">Domain allowlist<small>Choose which domains the sandbox can access</small></div><div class="ddl">Package managers only ▾</div></div><div class="infoln"><span>ℹ</span><span>Claude can access common package managers plus any additional domains you specify below.</span></div><div class="adom"><div class="lab">Additional allowed domains</div><div class="inp"><div class="box">example.com or *.example.com</div><div class="add">Add</div></div><div class="chip"><span>api.notion.com</span><span class="tr">🗑</span></div></div></div></div></div>
       <figcaption><span class="ru">Вариант «Package managers only» + домен <code>api.notion.com</code> в Additional allowed domains (безопаснее)</span><span class="en">"Package managers only" + <code>api.notion.com</code> under Additional allowed domains (safer)</span></figcaption>
     </figure>
 
@@ -192,7 +245,7 @@
     <div class="step-h"><div class="num">2</div><h3><span class="ru">Загрузка скилла</span><span class="en">Upload the skill</span></h3></div>
     <p class="sub"><span class="ru">Раздел <b>Customize</b> (Settings → Capabilities → Skills → «moved to Customize»).</span><span class="en">The <b>Customize</b> area (Settings → Capabilities → Skills → "moved to Customize").</span></p>
     <figure>
-      <img class="shot" src="{{IMG3}}" alt="Customize → Skills → + → Upload a skill">
+      <div class="mock smock"><div class="stop"><span class="sback">←</span><b>Customize</b><span class="mk">1</span></div><div class="scols"><div class="snav"><div class="sproj">▢ FitnessLife</div><div class="snavit on">Skills<span class="mk">2</span></div><div class="snavit">Connectors</div></div><div class="smain"><div class="smhd"><b>Skills</b><span class="grow"></span><span class="sicon">🔍</span><span class="splus">+</span><span class="mk">3</span></div><div class="smenu"><div>Browse skills</div><div>Create skill ›</div></div><div class="smenu sub"><div>Create with Claude</div><div>Write skill instructions</div><div class="sel">⬆ Upload a skill<span class="mk">4</span></div></div></div></div></div>
       <figcaption><span class="ru">Порядок действий отмечен цифрами на скрине</span><span class="en">The order is numbered on the screenshot</span></figcaption>
     </figure>
     <p class="tx"><b>1</b> Customize → <b>2</b> Skills → <b>3</b> <span class="ru">кнопка</span><span class="en">the</span> «<code>+</code>» <span class="ru">→ Create skill →</span><span class="en">→ Create skill →</span> <b>4</b> <b>Upload a skill</b> → <span class="ru">выберите файл</span><span class="en">pick</span> <code>fitness-tracker.zip</code>.</p>
@@ -208,9 +261,16 @@
 
   <!-- STEP 4 -->
   <section class="step">
-    <div class="step-h"><div class="num">4</div><h3><span class="ru">Подготовить Notion</span><span class="en">Prepare Notion</span> <span class="opt-badge"><span class="ru">если Notion</span><span class="en">if Notion</span></span></h3></div>
-    <p class="sub"><span class="ru">Делается один раз, заранее. Для <b>локального</b> хранилища этот шаг не нужен; для <b>Google Sheets</b> Claude проведёт по своей инструкции в чате.</span><span class="en">Done once, upfront. Not needed for the <b>local</b> backend; for <b>Google Sheets</b> Claude walks you through its own steps in chat.</span></p>
+    <div class="step-h"><div class="num">4</div><h3><span class="ru">Подготовить хранилище</span><span class="en">Prepare your storage</span></h3></div>
+    <p class="sub"><span class="ru">Выберите бэкенд — ниже вкладка под каждый.</span><span class="en">Pick your backend — a tab for each is below.</span></p>
 
+    <div class="tabs" role="tablist">
+      <button class="tab" data-tab="notion" aria-selected="true">Notion <span class="ru">(реком.)</span><span class="en">(rec.)</span></button>
+      <button class="tab" data-tab="sheets" aria-selected="false">Google Sheets</button>
+      <button class="tab" data-tab="local" aria-selected="false"><span class="ru">Локальный файл</span><span class="en">Local file</span></button>
+    </div>
+
+    <div class="tabpanel" data-panel="notion" data-show="1">
     <ol class="flow">
       <li><span class="ru">Создайте (или откройте) <b>workspace</b> в Notion.</span><span class="en">Create (or open) a <b>workspace</b> in Notion.</span></li>
       <li><span class="ru">Создайте в нём <b>чистую страницу</b> (например, «FitnessLife»). Лишнее со страницы можно удалить — под ней скилл создаст три базы.</span><span class="en">Create a <b>blank page</b> in it (e.g. "FitnessLife"). Clear out any default content — the skill will create three databases under it.</span></li>
@@ -224,6 +284,25 @@
     <div class="crit"><span class="ru">⚠️ Шаг 6 — самый важный: <b>Content access → Private → Top level pages → выберите созданную страницу</b>. Без этого интеграция не увидит страницу и будет ошибка <b>403</b>.</span><span class="en">⚠️ Item 6 is the critical one: <b>Content access → Private → Top level pages → select your page</b>. Without it the integration can't see the page and you'll get a <b>403</b>.</span></div>
 
     <div class="send"><span>📨</span><div><span class="ru"><b>Что отправить Claude:</b> в чате проекта пришлите <b>токен</b> (<code>ntn_…</code>) <b>и ссылку на страницу</b> вместе, одним сообщением. Остальное (создание трёх баз) Claude сделает сам.</span><span class="en"><b>What to send Claude:</b> in the project chat, send the <b>token</b> (<code>ntn_…</code>) <b>and the page link</b> together, in one message. Claude does the rest (creates the three databases).</span></div></div>
+    </div>
+
+    <div class="tabpanel" data-panel="sheets">
+      <div class="opt"><span class="tag alt">advanced</span><div><span class="ru">Больше шагов, чем у Notion — одноразовая OAuth-авторизация в браузере. Зато данные в вашей таблице.</span><span class="en">More steps than Notion — a one-time browser OAuth. In return, data lives in your spreadsheet.</span></div></div>
+      <ol class="flow">
+        <li><span class="ru">Создайте проект в <b>Google Cloud</b> и включите <b>Google Sheets API</b>.</span><span class="en">Create a <b>Google Cloud</b> project and enable the <b>Google Sheets API</b>.</span></li>
+        <li><span class="ru"><b>OAuth consent screen</b> → User type <b>External</b> → добавьте свой Google-аккаунт в <b>Test users</b>.</span><span class="en"><b>OAuth consent screen</b> → User type <b>External</b> → add your Google account to <b>Test users</b>.</span></li>
+        <li><span class="ru">Создайте <b>OAuth Client ID</b> → тип <b>Desktop app</b> → скопируйте <code>client_id</code> и <code>client_secret</code>.</span><span class="en">Create an <b>OAuth Client ID</b> → type <b>Desktop app</b> → copy <code>client_id</code> and <code>client_secret</code>.</span></li>
+        <li><span class="ru">Получите <code>refresh_token</code> в <b><a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth Playground</a></b>: шестерёнка → «Use your own OAuth credentials» → вставьте client_id/secret → scope <code>https://www.googleapis.com/auth/spreadsheets</code> → Authorize → Exchange → скопируйте <code>refresh_token</code>.</span><span class="en">Get a <code>refresh_token</code> in the <b><a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth Playground</a></b>: gear → "Use your own OAuth credentials" → paste client_id/secret → scope <code>https://www.googleapis.com/auth/spreadsheets</code> → Authorize → Exchange → copy the <code>refresh_token</code>.</span></li>
+        <li><span class="ru">Создайте пустую <b>Google-таблицу</b>; скопируйте <code>spreadsheet_id</code> из URL (между <code>/d/</code> и <code>/edit</code>).</span><span class="en">Create a blank <b>Google Sheet</b>; copy its <code>spreadsheet_id</code> from the URL (between <code>/d/</code> and <code>/edit</code>).</span></li>
+        <li><span class="ru">Пришлите Claude все четыре значения: <code>spreadsheet_id</code>, <code>client_id</code>, <code>client_secret</code>, <code>refresh_token</code> — он создаст вкладки.</span><span class="en">Send Claude all four: <code>spreadsheet_id</code>, <code>client_id</code>, <code>client_secret</code>, <code>refresh_token</code> — it creates the tabs.</span></li>
+      </ol>
+      <div class="crit"><span class="ru">⚠️ Обязательно добавьте свой аккаунт в <b>Test users</b> (OAuth consent screen) — иначе обновление токена падает с <code>invalid_grant</code>.</span><span class="en">⚠️ You must add your account to <b>Test users</b> (OAuth consent screen) — otherwise token refresh fails with <code>invalid_grant</code>.</span></div>
+    </div>
+
+    <div class="tabpanel" data-panel="local">
+      <p class="tx"><span class="ru"><b>Настройка не нужна.</b> Claude создаст файл <code>fitness-data.json</code> и будет писать записи туда. На claude.ai держите <b>оба</b> файла — <code>fitness-config.json</code> и <code>fitness-data.json</code> — в знаниях проекта и пересохраняйте после сессий.</span><span class="en"><b>No setup.</b> Claude creates <code>fitness-data.json</code> and writes records there. On claude.ai keep <b>both</b> files — <code>fitness-config.json</code> and <code>fitness-data.json</code> — in the project knowledge and re-save them after sessions.</span></p>
+      <div class="infobox"><span>💡</span><div><span class="ru">Локальный бэкенд проще всего, но файл песочницы сам по себе не переживает сессию — для долговечности надёжнее Notion/Sheets. Для использования <b>вне Claude</b> можно запускать встроенный CLI напрямую (см. README в репозитории).</span><span class="en">The local backend is simplest, but the sandbox file doesn't persist on its own — Notion/Sheets are safer for durability. For use <b>outside Claude</b>, you can run the bundled CLI directly (see the repo README).</span></div></div>
+    </div>
   </section>
 
   <!-- STEP 5 -->
@@ -293,22 +372,28 @@
   <footer>
     fitness-tracker · <span class="ru">персональный трекер КБЖУ и тренировок для Claude.</span><span class="en">a personal calorie/macro & training tracker for Claude.</span><br>
     <span class="ru">Данные хранятся в вашем аккаунте. Токены и записи не покидают ваше хранилище.</span><span class="en">Your data stays in your account. Tokens and records never leave your storage.</span>
+    <div class="footlinks"><a href="https://github.com/monrage/fitness-tracker-skill" target="_blank" rel="noopener">GitHub</a> · <a href="https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip"><span class="ru">Скачать скилл</span><span class="en">Download skill</span></a> · <span class="ru">лицензия</span><span class="en">licensed</span> MIT</div>
   </footer>
 </div>
 
 <script>
   (function(){
     var b=document.body;
-    function set(l){
+    function setLang(l){
       b.dataset.lang=l;
       document.documentElement.lang=l;
-      document.querySelectorAll('.lb').forEach(function(x){ x.setAttribute('aria-pressed', String(x.dataset.set===l)); });
+      document.querySelectorAll('.lb[data-set]').forEach(function(x){ x.setAttribute('aria-pressed', String(x.dataset.set===l)); });
       try{ localStorage.setItem('ft_lang', l); }catch(e){}
     }
     var saved=null; try{ saved=localStorage.getItem('ft_lang'); }catch(e){}
-    var init = saved || ((navigator.language||'ru').slice(0,2).toLowerCase()==='en' ? 'en' : 'ru');
-    set(init);
-    document.querySelectorAll('.lb').forEach(function(x){ x.addEventListener('click', function(){ set(x.dataset.set); }); });
+    setLang(saved || ((navigator.language||'ru').slice(0,2).toLowerCase()==='en' ? 'en' : 'ru'));
+    document.querySelectorAll('.lb[data-set]').forEach(function(x){ x.addEventListener('click', function(){ setLang(x.dataset.set); }); });
+
+    function setTab(t){
+      document.querySelectorAll('.tab').forEach(function(x){ x.setAttribute('aria-selected', String(x.dataset.tab===t)); });
+      document.querySelectorAll('.tabpanel').forEach(function(p){ p.setAttribute('data-show', p.dataset.panel===t ? '1' : '0'); });
+    }
+    document.querySelectorAll('.tab').forEach(function(x){ x.addEventListener('click', function(){ setTab(x.dataset.tab); }); });
   })();
 </script>
 </body>
