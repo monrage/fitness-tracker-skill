@@ -1,48 +1,54 @@
-"""Build the install guide: inline screenshots as base64 into one HTML file.
+"""Build the install-guide site into docs/ — served by Cloudflare Pages.
 
-Reads guide/template.html + guide/img/{1.png,2.png,3.png,4.webp}, replaces the
-{{IMG1..4}} placeholders, and writes docs/index.html — a fully self-contained
-page used both for GitHub Pages and as a standalone handout.
+Produces:
+  docs/index.html            self-contained bilingual install guide (from guide/template.html)
+  docs/fitness-tracker.zip   the packaged skill (contents of fitness-tracker/, SKILL.md at root)
 
-Run from anywhere:  python guide/build.py
+Cloudflare Pages settings:  Build command = `python guide/build.py`, Output directory = `docs`.
+Run locally the same way:   python guide/build.py
+Pure stdlib; no images, no dependencies.
 """
-import base64
 import os
+import zipfile
 
 SELF = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(SELF)
-IMG = os.path.join(SELF, "img")
 TEMPLATE = os.path.join(SELF, "template.html")
-OUT = os.path.join(ROOT, "docs", "index.html")
-
-MIME = {".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
-SLOTS = {}  # guide is now fully CSS mockups — no embedded screenshots
+DOCS = os.path.join(ROOT, "docs")
+SKILL = os.path.join(ROOT, "fitness-tracker")
 
 
-def data_uri(path):
-    ext = os.path.splitext(path)[1].lower()
-    with open(path, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode("ascii")
-    return f"data:{MIME.get(ext, 'application/octet-stream')};base64,{b64}"
+def build_guide():
+    with open(TEMPLATE, "r", encoding="utf-8") as f:
+        html = f.read()
+    os.makedirs(DOCS, exist_ok=True)
+    out = os.path.join(DOCS, "index.html")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(html)
+    return out
+
+
+def build_zip():
+    """Zip the skill so the guide's Download button can serve it same-origin."""
+    os.makedirs(DOCS, exist_ok=True)
+    out = os.path.join(DOCS, "fitness-tracker.zip")
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for root, dirs, files in os.walk(SKILL):
+            dirs[:] = [d for d in dirs if d != "__pycache__"]
+            for fn in files:
+                if fn.endswith((".pyc", ".pyo")):
+                    continue
+                full = os.path.join(root, fn)
+                arc = os.path.relpath(full, SKILL).replace(os.sep, "/")  # forward slashes
+                z.write(full, arc)
+    return out
 
 
 def main():
-    with open(TEMPLATE, "r", encoding="utf-8") as f:
-        html = f.read()
-    for slot, fname in SLOTS.items():
-        if slot not in html:
-            raise SystemExit(f"placeholder {slot} missing from template")
-        path = os.path.join(IMG, fname)
-        if not os.path.exists(path):
-            raise SystemExit(f"image not found: {path}")
-        html = html.replace(slot, data_uri(path))
-    left = [s for s in SLOTS if s in html]
-    if left:
-        raise SystemExit(f"unreplaced placeholders: {left}")
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as f:
-        f.write(html)
-    print(f"built {OUT} ({round(os.path.getsize(OUT) / 1024)} KB)")
+    g = build_guide()
+    z = build_zip()
+    print(f"built {g} ({round(os.path.getsize(g) / 1024)} KB)")
+    print(f"built {z} ({round(os.path.getsize(z) / 1024)} KB)")
 
 
 if __name__ == "__main__":
