@@ -5,10 +5,9 @@
 > and builds weekly / monthly / yearly summaries. Your data stays in **your own**
 > Notion, Google Sheets, or a local file.
 
-[![CI](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/monrage/fitness-tracker-skill?sort=semver)](https://github.com/monrage/fitness-tracker-skill/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Install guide RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://monrage.github.io/fitness-tracker-skill/)
+[![Install guide RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://fitness-tracker-skill.pages.dev)
 
 **English** · [Русский](README.ru.md)
 
@@ -37,7 +36,7 @@ you →  weekly summary
 
 ## 🚀 Install
 1. **Download** the skill: [`fitness-tracker.zip`](https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip).
-2. **Follow the step-by-step guide** → **https://monrage.github.io/fitness-tracker-skill/**
+2. **Follow the step-by-step guide** → **https://fitness-tracker-skill.pages.dev**
    (RU/EN). It covers the easy-to-miss bits: opening sandbox **network access**,
    uploading the skill, creating a **project**, preparing **Notion**, and **saving the
    config** to the project.

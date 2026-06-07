@@ -36,7 +36,7 @@ CI runs all of these except the live network test.
 fitness-tracker/   The skill: SKILL.md (router), references/ (on-demand docs),
                    scripts/ (stdlib CLI + backends/logic), assets/, evals/
 guide/             Install-guide source: template.html (bilingual) + img/ + build.py
-docs/              Built guide for GitHub Pages (generated — do not edit by hand)
+docs/              Built guide (committed; served by Cloudflare Pages) — run build.py, don't edit by hand
 tests/             Plain-Python test suite + eval fixtures
 .github/workflows/ CI, Release (zips the skill), Pages
 ```

@@ -1,6 +1,5 @@
 # ── Build outputs (regenerated; not committed) ──
 /dist/
-/docs/
 *.zip
 
 # ── Python ──

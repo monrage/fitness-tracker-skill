@@ -4,10 +4,9 @@
 > тренировки и вес против ваших целей и собирает сводки за неделю / месяц / год. Данные
 > хранятся в **вашем собственном** Notion, Google Sheets или локальном файле.
 
-[![CI](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/monrage/fitness-tracker-skill?sort=semver)](https://github.com/monrage/fitness-tracker-skill/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Инструкция RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://monrage.github.io/fitness-tracker-skill/)
+[![Инструкция RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://fitness-tracker-skill.pages.dev)
 
 [English](README.md) · **Русский**
 
@@ -36,7 +35,7 @@
 
 ## 🚀 Установка
 1. **Скачайте** скилл: [`fitness-tracker.zip`](https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip).
-2. **Пройдите пошаговую инструкцию** → **https://monrage.github.io/fitness-tracker-skill/**
+2. **Пройдите пошаговую инструкцию** → **https://fitness-tracker-skill.pages.dev**
    (RU/EN). Там разобраны неочевидные моменты: открытие **доступа к сети** песочницы,
    загрузка скилла, создание **проекта**, подготовка **Notion** и **сохранение конфига**
    в проект.
