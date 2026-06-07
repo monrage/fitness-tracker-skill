@@ -1,0 +1,15 @@
+{
+  // Cloudflare Workers — static-assets-only deployment (no Worker script).
+  // Serves the built install guide + skill zip from ./docs.
+  //
+  // Workers Builds settings (dashboard → Continue with GitHub → this repo):
+  //   Build command:  python guide/build.py      (build image ships Python 3.13.3)
+  //   Deploy command: npx wrangler deploy         (default — reads this file)
+  //
+  // Live URL: https://fitness-tracker-skill.<your-subdomain>.workers.dev
+  "name": "fitness-tracker-skill",
+  "compatibility_date": "2026-06-08",
+  "assets": {
+    "directory": "./docs"
+  }
+}

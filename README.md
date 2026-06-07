@@ -7,7 +7,7 @@
 
 [![Release](https://img.shields.io/github/v/release/monrage/fitness-tracker-skill?sort=semver)](https://github.com/monrage/fitness-tracker-skill/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Install guide RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://fitness-tracker-skill.pages.dev)
+[![Install guide RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://fitness-tracker-skill.kv3315.workers.dev)
 
 **English** · [Русский](README.ru.md)
 
@@ -35,8 +35,8 @@ you →  weekly summary
 - **Bilingual** UX (Russian + English).
 
 ## 🚀 Install
-1. **Download** the skill: [`fitness-tracker.zip`](https://fitness-tracker-skill.pages.dev/fitness-tracker.zip).
-2. **Follow the step-by-step guide** → **https://fitness-tracker-skill.pages.dev**
+1. **Download** the skill: [`fitness-tracker.zip`](https://fitness-tracker-skill.kv3315.workers.dev/fitness-tracker.zip).
+2. **Follow the step-by-step guide** → **https://fitness-tracker-skill.kv3315.workers.dev**
    (RU/EN). It covers the easy-to-miss bits: opening sandbox **network access**,
    uploading the skill, creating a **project**, preparing **Notion**, and **saving the
    config** to the project.
