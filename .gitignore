@@ -19,6 +19,7 @@ __pycache__/
 *.log
 guide-*.png
 mock-*.png
+deploy-*.png
 
 # ── OS / editors ──
 .DS_Store
