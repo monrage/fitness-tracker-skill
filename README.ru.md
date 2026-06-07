@@ -83,12 +83,6 @@ tests/             тесты на чистом Python
 ```
 Полный воркфлоу — в [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## 📦 Релизы
-Пуш тега `v*` запускает workflow, который пакует `fitness-tracker/` в `fitness-tracker.zip`
-и прикладывает к GitHub Release. Ссылка на
-[последний релиз](https://github.com/monrage/fitness-tracker-skill/releases/latest) — это то,
-куда ведёт кнопка скачивания в инструкции.
-
 ## 🙏 Авторы
 Создано [**monrage**](https://github.com/monrage), по идее друга (имя добавим 🙂). Спроектировано
 и собрано в паре с **Claude** (Anthropic).

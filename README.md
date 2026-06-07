@@ -85,12 +85,6 @@ tests/             plain-Python test suite
 ```
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
-## 📦 Releases
-Pushing a `v*` tag triggers a workflow that packages `fitness-tracker/` into
-`fitness-tracker.zip` and attaches it to a GitHub Release. The
-[latest release](https://github.com/monrage/fitness-tracker-skill/releases/latest)
-download link is what the install guide points to.
-
 ## 🙏 Credits
 Created by [**monrage**](https://github.com/monrage), from an idea by a friend (to be
 credited 🙂). Designed and built in collaboration with **Claude** (Anthropic).
