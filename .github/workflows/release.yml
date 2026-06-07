@@ -1,0 +1,41 @@
+name: Release
+
+# Tag a version to publish the packaged skill as a release asset:
+#   git tag v1.0.0 && git push origin v1.0.0
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package & publish fitness-tracker.zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanity-check skill before packaging
+        run: |
+          python tests/test_docs_consistency.py
+          python tests/check_desc.py
+
+      - name: Package the skill (SKILL.md at archive root)
+        run: |
+          cd fitness-tracker
+          zip -r ../fitness-tracker.zip . -x '*/__pycache__/*' '*.pyc'
+          cd ..
+          echo "── archive contents ──"
+          unzip -l fitness-tracker.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: fitness-tracker.zip
+          generate_release_notes: true
+          body: |
+            **fitness-tracker** — Claude skill for nutrition & training tracking.
+
+            **Install:** download `fitness-tracker.zip` below and follow the
+            [step-by-step guide](https://monrage.github.io/fitness-tracker-skill/) (RU/EN).

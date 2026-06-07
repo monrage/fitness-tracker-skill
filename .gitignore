@@ -1,0 +1,27 @@
+# ── Build outputs (regenerated; not committed) ──
+/dist/
+/docs/
+*.zip
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Eval / test scratch ──
+/fitness-tracker-workspace/
+/fitness-config.json
+/fitness-data.json
+/fitness-data.json.tmp
+
+# ── Tooling / local previews ──
+/.playwright-mcp/
+*.log
+guide-*.png
+
+# ── OS / editors ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

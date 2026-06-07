@@ -1,0 +1,53 @@
+{
+  "skill_name": "fitness-tracker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Хочу начать вести дневник питания и тренировок прямо в чате — с целями по КБЖУ и статистикой. Помоги настроить.",
+      "expected_output": "Recognizes no config (status -> onboarded:false), opens references/onboarding.md and starts the wizard ONE step at a time: basics (lang/units/timezone/week_start), then backend choice with honest trade-offs (Notion recommended), then goals, then nutrition provider. Does NOT start logging before setup is complete.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "запиши на обед 200 г куриной грудки и 150 г варёного риса",
+      "expected_output": "Resolves date = today. Estimates macros from Claude knowledge for both items (source=claude), states the estimate and confirms, then calls log-food once per item (meal=lunch). Relays the day's running totals vs goal from the CLI 'day' block.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "вчера на перекус съел шоколадку, штрихкод 3017620422003, грамм 30",
+      "expected_output": "Resolves date = yesterday. Runs `lookup --barcode 3017620422003 --grams 30`, uses the scaled per-portion macros (source=off), confirms the matched product, then log-food with meal=snack and the resolved yesterday date.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "сегодня жал лёжа 80 кг 5х5 и присед 100 на 5 по 5",
+      "expected_output": "Two log-workout calls, type=strength, sets=5 reps=5, weight 80 and 100. Volume computed automatically (2000 and 2500). Confirms logged.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "вот этикетка творога, съел 180 грамм",
+      "expected_output": "Reads the per-100g values directly off the label image (vision), scales by 180/100, sets source=label, confirms the computed macros, then log-food. Does NOT use Open Food Facts when a label photo is provided.",
+      "files": ["tvorog-label.jpg"]
+    },
+    {
+      "id": 6,
+      "prompt": "сколько белка мне ещё осталось набрать сегодня?",
+      "expected_output": "Runs `summary --period day --today <today>`, reads vs_goal.protein_g (target/actual/remaining) and tells the user the remaining grams, optionally with a brief suggestion if far behind.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "подведи итоги недели — как я питался и тренировался",
+      "expected_output": "Runs `summary --period week --today <today>`, formats a warm Russian weekly report per references/summaries.md: avg per logged day, adherence % with logged-day coverage, sessions and volume, any PRs, bodyweight delta. One coaching observation max.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "посчитай мне нормы по КБЖУ: мужчина, 30 лет, рост 182, вес 85, тренируюсь 4 раза в неделю, хочу немного просушиться",
+      "expected_output": "Maps to compute-goals --sex male --age 30 --height 182 --weight 85 --activity moderate --goal cut. Presents bmr/tdee/target kcal and macros as a starting point, invites adjustment, then saves agreed goals + profile via config-set.",
+      "files": []
+    }
+  ]
+}

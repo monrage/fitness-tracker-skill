@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "onboarded": true,
+  "lang": "ru",
+  "units": { "mass": "g", "body_mass": "kg", "distance": "km", "energy": "kcal" },
+  "timezone": "Europe/Moscow",
+  "week_start": "mon",
+  "backend": {
+    "type": "local",
+    "local": { "path": "fitness-data.json" },
+    "notion": {
+      "token": "ntn_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "parent_page_id": "",
+      "databases": { "food": "", "workout": "", "bodyweight": "", "goals": "" }
+    },
+    "sheets": {
+      "spreadsheet_id": "",
+      "oauth": { "client_id": "", "client_secret": "", "refresh_token": "" }
+    }
+  },
+  "nutrition": {
+    "provider": "claude+off",
+    "off_enabled": true,
+    "off_country": "ru",
+    "nutritionix": { "app_id": "", "app_key": "" }
+  },
+  "goals": {
+    "kcal": 2200,
+    "protein_g": 165,
+    "fat_g": 70,
+    "carbs_g": 220,
+    "workouts_per_week": 4,
+    "bodyweight_target_kg": 80,
+    "tolerance_pct": 7
+  },
+  "profile": {
+    "sex": "male",
+    "age": 30,
+    "height_cm": 182,
+    "weight_kg": 85,
+    "activity": "moderate",
+    "goal": "cut"
+  }
+}

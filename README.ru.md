@@ -1,0 +1,97 @@
+# 🏋️ fitness-tracker
+
+> Личный **трекер питания и тренировок** прямо в чате Claude — записывает еду с КБЖУ,
+> тренировки и вес против ваших целей и собирает сводки за неделю / месяц / год. Данные
+> хранятся в **вашем собственном** Notion, Google Sheets или локальном файле.
+
+[![CI](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/monrage/fitness-tracker-skill/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/monrage/fitness-tracker-skill?sort=semver)](https://github.com/monrage/fitness-tracker-skill/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Инструкция RU | EN](https://img.shields.io/badge/guide-RU%20%7C%20EN-d97757)](https://monrage.github.io/fitness-tracker-skill/)
+
+[English](README.md) · **Русский**
+
+Это [Claude **Skill**](https://www.anthropic.com/news/skills): загружаете в Claude,
+пишете обычным языком — и он ведёт за вас структурированный дневник.
+
+```
+вы →  запиши на обед 200 г куриной грудки и 150 г риса
+вы →  сегодня тренировка: жим 80×5×5, присед 100×5×5
+вы →  сколько белка осталось сегодня?
+вы →  сводка за неделю
+```
+
+## ✨ Возможности
+- **Еда + КБЖУ:** опишите приём пищи словами — Claude сам посчитает калории/Б/Ж/У,
+  найдёт по **штрихкоду** через Open Food Facts или прочитает **фото этикетки**. Ручной
+  ввод тоже есть.
+- **Тренировки:** подходы × повторы × вес (объём считается сам), кардио, длительность,
+  личные рекорды.
+- **Вес тела** и его тренд к цели.
+- **Цели:** задать напрямую или рассчитать по параметрам тела (Mifflin-St Jeor).
+- **Даты:** понимает «вчера», «в понедельник», `05.06`, ISO — раскладывает записи по
+  нужным дням (RU + EN).
+- **Сводки:** день / неделя / месяц / год — приверженность, серии, рекорды, динамика веса.
+- **Двуязычный** интерфейс (русский + английский).
+
+## 🚀 Установка
+1. **Скачайте** скилл: [`fitness-tracker.zip`](https://github.com/monrage/fitness-tracker-skill/releases/latest/download/fitness-tracker.zip).
+2. **Пройдите пошаговую инструкцию** → **https://monrage.github.io/fitness-tracker-skill/**
+   (RU/EN). Там разобраны неочевидные моменты: открытие **доступа к сети** песочницы,
+   загрузка скилла, создание **проекта**, подготовка **Notion** и **сохранение конфига**
+   в проект.
+
+Требуется платный план claude.ai (Pro / Max / Team) с включённым **исполнением кода**.
+
+## 🧠 Как устроено
+- **Разделение «ассистент ↔ CLI».** Claude отвечает за язык, оценку макросов и зрение
+  (фото этикеток). Встроенный CLI [`scripts/fittrack.py`](fitness-tracker/scripts/fittrack.py)
+  делает детерминированную работу — хранение, даты, запросы к Open Food Facts, расчёт
+  целей, агрегацию — и печатает JSON, который ассистент читает.
+- **Только stdlib.** Все скрипты на стандартной библиотеке Python — работают в песочнице
+  claude.ai без `pip install`.
+- **Скилл без памяти, хранилище — постоянное.** Между чатами скилл ничего не помнит;
+  долговечность даёт выбранный бэкенд + небольшой `fitness-config.json` в вашем Claude Project.
+
+## 🗄 Хранилища
+| Бэкенд | Кому подходит | Настройка |
+|---|---|---|
+| **Notion** (рекомендуется) | структура + мобильное приложение | один integration token |
+| **Google Sheets** | любители таблиц / графиков | одноразовый OAuth |
+| **Локальный файл** | без облака / максимум приватности | не требуется |
+
+## 🔒 Приватность
+Данные остаются вашими. Токены лежат только в локальном `fitness-config.json` (в репозиторий
+не попадают); записи идут только в выбранный вами бэкенд; код обращается только к тем API,
+которые вы включили. Никакой телеметрии. См. [SECURITY.md](SECURITY.md).
+
+## 🛠 Разработка
+Без зависимостей — Python 3.10+. Запуск тестов (обычный Python):
+
+```bash
+python tests/test_foundation.py
+python tests/test_logic.py
+python tests/test_backends_mapping.py
+python tests/test_docs_consistency.py
+```
+
+```
+fitness-tracker/   скилл (SKILL.md + references/ + scripts/ + assets/ + evals/)
+guide/             исходник инструкции (двуязычный шаблон + img + build.py)
+docs/              собранный гайд для GitHub Pages (генерируется)
+tests/             тесты на чистом Python
+```
+Полный воркфлоу — в [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 📦 Релизы
+Пуш тега `v*` запускает workflow, который пакует `fitness-tracker/` в `fitness-tracker.zip`
+и прикладывает к GitHub Release. Ссылка на
+[последний релиз](https://github.com/monrage/fitness-tracker-skill/releases/latest) — это то,
+куда ведёт кнопка скачивания в инструкции.
+
+## 🙏 Авторы
+Создано [**monrage**](https://github.com/monrage), по идее друга (имя добавим 🙂). Спроектировано
+и собрано в паре с **Claude** (Anthropic).
+
+## 📄 Лицензия
+[MIT](LICENSE) © 2026 monrage

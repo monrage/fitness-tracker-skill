@@ -1,0 +1,45 @@
+{
+  "notion_version": "2022-06-28",
+  "databases": {
+    "food": {
+      "title": "FitnessLife — Food log",
+      "properties": {
+        "Item":      { "type": "title" },
+        "Date":      { "type": "date" },
+        "Meal":      { "type": "select", "options": ["breakfast", "lunch", "dinner", "snack"] },
+        "Qty g":     { "type": "number" },
+        "Calories":  { "type": "number" },
+        "Protein g": { "type": "number" },
+        "Fat g":     { "type": "number" },
+        "Carbs g":   { "type": "number" },
+        "Source":    { "type": "select", "options": ["claude", "off", "label", "manual"] },
+        "Notes":     { "type": "rich_text" }
+      }
+    },
+    "workout": {
+      "title": "FitnessLife — Workout log",
+      "properties": {
+        "Exercise":     { "type": "title" },
+        "Date":         { "type": "date" },
+        "Type":         { "type": "select", "options": ["strength", "cardio", "mobility", "sport"] },
+        "Sets":         { "type": "number" },
+        "Reps":         { "type": "number" },
+        "Weight kg":    { "type": "number" },
+        "Duration min": { "type": "number" },
+        "Distance km":  { "type": "number" },
+        "RPE":          { "type": "number" },
+        "Volume":       { "type": "number" },
+        "Notes":        { "type": "rich_text" }
+      }
+    },
+    "bodyweight": {
+      "title": "FitnessLife — Bodyweight",
+      "properties": {
+        "Entry":     { "type": "title" },
+        "Date":      { "type": "date" },
+        "Weight kg": { "type": "number" },
+        "Notes":     { "type": "rich_text" }
+      }
+    }
+  }
+}
