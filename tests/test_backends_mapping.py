@@ -3,7 +3,7 @@
 Notion create-format vs read-format are intentionally asymmetric, so build and
 parse are tested with their own correct fixtures. Sheets row<->record is
 symmetric and round-tripped. HTTP plumbing requires live user credentials and is
-verified separately (see README integration-testing note).
+verified separately on a user's real Notion/Sheets account.
 
 Run: python tests/test_backends_mapping.py
 """

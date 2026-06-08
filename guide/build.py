@@ -38,6 +38,8 @@ def build_zip():
             for fn in files:
                 if fn.endswith((".pyc", ".pyo")):
                     continue
+                if fn.lower().startswith("readme"):
+                    continue  # docs belong in the repo, not in the distributed skill
                 full = os.path.join(root, fn)
                 arc = os.path.relpath(full, SKILL).replace(os.sep, "/")  # forward slashes
                 z.write(full, arc)
