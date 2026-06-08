@@ -21,6 +21,7 @@ TOKEN_URL = "https://oauth2.googleapis.com/token"
 SHEETS = "https://sheets.googleapis.com/v4/spreadsheets"
 
 TABS = {"food": "Food", "workout": "Workout", "bodyweight": "Bodyweight", "energy": "Energy"}
+META_TAB = "Meta"  # key/value tab for app state (last-viewed report dates, etc.)
 COLUMNS = {
     "food": ["date", "meal", "item", "qty_g", "kcal", "protein_g", "fat_g", "carbs_g", "source", "notes"],
     "workout": ["date", "type", "exercise", "sets", "reps", "weight_kg", "duration_min",
@@ -110,13 +111,14 @@ class SheetsBackend(Backend):
 
     def ensure_schema(self):
         existing = self._existing_tabs()
-        requests = [{"addSheet": {"properties": {"title": TABS[k]}}}
-                    for k in KINDS if TABS[k] not in existing]
+        want = [TABS[k] for k in KINDS] + [META_TAB]
+        requests = [{"addSheet": {"properties": {"title": t}}} for t in want if t not in existing]
         if requests:
             self._api("POST", f"{SHEETS}/{self.spreadsheet_id}:batchUpdate", {"requests": requests})
         for k in KINDS:
             self._ensure_header(k)
-        return {"backend": "sheets", "spreadsheet_id": self.spreadsheet_id, "tabs": list(TABS.values())}
+        self._ensure_meta_header()
+        return {"backend": "sheets", "spreadsheet_id": self.spreadsheet_id, "tabs": want}
 
     def _ensure_header(self, kind):
         tab = TABS[kind]
@@ -155,3 +157,34 @@ class SheetsBackend(Backend):
 
     def list_all(self, kind):
         return sorted(self._read(kind), key=lambda r: r.get("date", ""))
+
+    def _ensure_meta_header(self):
+        rng = f"{META_TAB}!1:1"
+        got = self._api("GET", f"{SHEETS}/{self.spreadsheet_id}/values/{urllib.parse.quote(rng)}")
+        if not got.get("values"):
+            self._api("PUT",
+                      f"{SHEETS}/{self.spreadsheet_id}/values/{urllib.parse.quote(rng)}?valueInputOption=RAW",
+                      {"values": [["key", "value"]]})
+
+    def read_meta(self):
+        rng = f"{META_TAB}!A:B"
+        got = self._api("GET", f"{SHEETS}/{self.spreadsheet_id}/values/{urllib.parse.quote(rng)}")
+        out = {}
+        for row in (got.get("values") or [])[1:]:
+            if row and row[0]:
+                out[row[0]] = row[1] if len(row) > 1 else ""
+        return out
+
+    def write_meta(self, patch):
+        meta = self.read_meta()
+        meta.update({str(k): str(v) for k, v in (patch or {}).items()})
+        self._ensure_meta_header()
+        self._api("POST",
+                  f"{SHEETS}/{self.spreadsheet_id}/values/{urllib.parse.quote(META_TAB + '!A2:B')}:clear", {})
+        if meta:
+            rows = [[k, v] for k, v in meta.items()]
+            self._api("PUT",
+                      f"{SHEETS}/{self.spreadsheet_id}/values/"
+                      f"{urllib.parse.quote(META_TAB + '!A2:B' + str(len(rows) + 1))}?valueInputOption=RAW",
+                      {"values": rows})
+        return meta

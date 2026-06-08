@@ -145,6 +145,15 @@ class Backend:
         """Return every record of `kind`, date-sorted."""
         raise NotImplementedError
 
+    def read_meta(self) -> dict:
+        """Small app-state KV (e.g. last-viewed report dates). {} if empty/unsupported."""
+        return {}
+
+    def write_meta(self, patch: dict) -> dict:
+        """Merge `patch` into the stored meta; return the full meta. Persists in the
+        backend itself (no config re-save needed for cloud backends)."""
+        raise NotImplementedError
+
 
 def get_backend(config: dict) -> Backend:
     btype = (config.get("backend") or {}).get("type", "local")

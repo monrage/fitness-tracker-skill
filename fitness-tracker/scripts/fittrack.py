@@ -20,6 +20,7 @@ Examples (assistant-invoked):
   python fittrack.py compute-goals --sex male --age 30 --height 182 --weight 85 \
       --activity moderate --goal cut
   python fittrack.py summary --period week --today 2026-06-07
+  python fittrack.py report --period month --today 2026-06-07 --metric bodycomp
   python fittrack.py config-set --patch '{"onboarded": true, "goals": {"kcal": 2200}}'
 
 Config path: --config, else env FITTRACK_CONFIG, else ./fitness-config.json.
@@ -31,6 +32,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import charts  # noqa: E402
 import config as cfg  # noqa: E402
 import dates as D  # noqa: E402
 import goals as G  # noqa: E402
@@ -227,6 +229,248 @@ def cmd_ensure_schema(args):
     _out({"result": storage.get_backend(_cfg(args)).ensure_schema()})
 
 
+def cmd_meta_get(args):
+    _out({"meta": storage.get_backend(_cfg(args)).read_meta()})
+
+
+def cmd_meta_set(args):
+    _out({"meta": storage.get_backend(_cfg(args)).write_meta(json.loads(args.patch))})
+
+
+_REPORT_LBL = {
+    "ru": {"weight": "Вес, кг", "muscle": "Мышцы, кг", "fat": "Жир, кг",
+           "water": "Вода, кг", "fat_pct": "Жир, %", "net": "Нетто, ккал"},
+    "en": {"weight": "Weight, kg", "muscle": "Muscle, kg", "fat": "Fat, kg",
+           "water": "Water, kg", "fat_pct": "Fat, %", "net": "Net, kcal"},
+}
+_FIELD_ALIAS = {"weight": "weight_kg", "muscle": "muscle_kg", "fat": "fat_kg",
+                "water": "water_kg", "fat_pct": "fat_pct", "fatpct": "fat_pct"}
+
+
+def _png_chart(series, x_labels, title):
+    """Optional matplotlib PNG (base64). Returns None if matplotlib is absent."""
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import base64
+        import io
+        import matplotlib.pyplot as plt
+    except Exception:
+        return None
+    try:
+        fig, ax = plt.subplots(figsize=(7.6, 3.4), dpi=130)
+        for s in series:
+            xy = [(i, v) for i, v in enumerate(s["values"]) if v is not None]
+            if xy:
+                ax.plot([i for i, _ in xy], [v for _, v in xy], marker="o", label=s["label"])
+        ax.set_title(title)
+        ax.legend(loc="best", fontsize=8)
+        step = max(1, len(x_labels) // 6)
+        ax.set_xticks(list(range(0, len(x_labels), step)))
+        ax.set_xticklabels(x_labels[::step], fontsize=8)
+        ax.grid(True, alpha=0.3)
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight")
+        plt.close(fig)
+        return base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception:
+        return None
+
+
+def _emit_chart(base, fmt, svg, spark):
+    """Finish a report: SVG (default) or text sparklines (spark = {label: values})."""
+    if fmt == "text":
+        base["format"] = "text"
+        base["sparklines"] = {k: charts.sparkline(v) for k, v in spark.items()}
+    else:
+        base["format"] = "svg"
+        base["svg"] = svg
+    _out(base)
+
+
+def cmd_report(args):
+    c = _cfg(args)
+    be = storage.get_backend(c)
+    if args.period == "week":
+        a, b = D.week_bounds(args.today, c.get("week_start", "mon"))
+    elif args.period == "month":
+        a, b = D.month_bounds(args.today)
+    elif args.period == "year":
+        a, b = D.year_bounds(args.today)
+    else:
+        a, b = args.date_from, args.date_to
+        if not (a and b):
+            _out({"error": "custom period needs --date-from and --date-to"})
+            return
+    bw = be.query_range("bodyweight", a, b)
+    food = be.query_range("food", a, b)
+    energy = be.query_range("energy", a, b)
+    workout = be.query_range("workout", a, b)
+    basal = _resolve_basal(c)[0]
+    lang = c.get("lang", "ru")
+    L = _REPORT_LBL.get(lang, _REPORT_LBL["ru"])
+
+    metric = args.metric
+    if metric == "auto":
+        metric = next((m for m in ("weight", "fat", "muscle")
+                       if S.metric_series(bw, _FIELD_ALIAS[m])), None) \
+            or ("net" if S.net_series(food, energy, basal) else "weight")
+
+    short = ({"weight": "Вес", "muscle": "Мышцы", "fat": "Жир", "water": "Вода"}
+             if lang != "en" else
+             {"weight": "Weight", "muscle": "Muscle", "fat": "Fat", "water": "Water"})
+
+    # --- specialised report types (own rendering, early return) ---
+    if metric == "calories":
+        goal = (c.get("goals") or {}).get("kcal")
+        dk = S.daily_kcal_series(food)
+        if not (goal and dk):
+            _out({"error": "calories report needs a kcal goal and logged food", "from": a, "to": b})
+            return
+        x = [d[5:] for d, _ in dk]
+        vals = [v for _, v in dk]
+        ttl = ("Калории vs цель" if lang != "en" else "Calories vs goal") + f" · {a} → {b}"
+        base = {"period": args.period, "from": a, "to": b, "metric": metric, "points": len(dk)}
+        _emit_chart(base, args.fmt, charts.bars_vs_goal_svg(vals, x, goal, title=ttl),
+                    {"ккал" if lang != "en" else "kcal": vals})
+        return
+    if metric == "adherence":
+        cal = S.adherence_calendar(food, c.get("goals"), a, b)
+        on = sum(1 for _, s in cal if s == "on")
+        logged = sum(1 for _, s in cal if s != "none")
+        ttl = ("Приверженность" if lang != "en" else "Adherence") + f" · {a} → {b}"
+        base = {"period": args.period, "from": a, "to": b, "metric": metric,
+                "on_days": on, "logged_days": logged, "days": len(cal)}
+        if args.fmt == "text":
+            base["format"] = "text"
+            base["text"] = f"{on}/{logged}"
+        else:
+            base["format"] = "svg"
+            base["svg"] = charts.heatmap_calendar_svg(cal, title=ttl, lang=lang)
+        _out(base)
+        return
+    if metric in ("deficit", "cumulative", "cumnet"):
+        cs = S.cumulative_net_series(food, energy, basal)
+        if not cs:
+            _out({"error": "deficit report needs food + energy on the same days", "from": a, "to": b})
+            return
+        x = [d[5:] for d, _ in cs]
+        vals = [v for _, v in cs]
+        ttl = ("Накопленный нетто, ккал" if lang != "en" else "Cumulative net, kcal") + f" · {a} → {b}"
+        base = {"period": args.period, "from": a, "to": b, "metric": "deficit", "points": len(cs),
+                "cumulative_net": vals[-1], "expected_fat_change_kg": round(vals[-1] / 7700, 2)}
+        _emit_chart(base, args.fmt, charts.line_chart_svg(
+            [{"label": ("Накоплено" if lang != "en" else "Cumulative"), "values": vals}],
+            x, title=ttl, value_fmt="{:+.0f}", baseline=0.0, fill=True),
+            {"нетто" if lang != "en" else "net": vals})
+        return
+    if metric == "pr":
+        ex = args.exercise
+        kind = args.pr_kind or "weight"
+        ps = S.pr_series(workout, ex, kind) if ex else []
+        if not ps:
+            _out({"error": "pr report needs --exercise with logged sets", "from": a, "to": b})
+            return
+        x = [d[5:] for d, _ in ps]
+        vals = [v for _, v in ps]
+        unit = ("вес, кг" if kind == "weight" else "объём") if lang != "en" else \
+               ("max weight, kg" if kind == "weight" else "volume")
+        ttl = f"{ex} — {unit} · {a} → {b}"
+        base = {"period": args.period, "from": a, "to": b, "metric": "pr",
+                "exercise": ex, "kind": kind, "points": len(ps), "best": max(vals)}
+        _emit_chart(base, args.fmt, charts.line_chart_svg(
+            [{"label": ex, "values": vals}], x, title=ttl, value_fmt="{:.1f}"), {ex: vals})
+        return
+    if metric == "macros":
+        ms = S.macro_split(food)
+        kc = ms["kcal"]
+        tot = sum(kc.values())
+        days_logged = len({r["date"] for r in food}) or 1
+        if tot <= 0:
+            _out({"error": "no food logged for a macro split", "from": a, "to": b})
+            return
+        lbl = ({"protein": "Белки", "fat": "Жиры", "carbs": "Углеводы"} if lang != "en"
+               else {"protein": "Protein", "fat": "Fat", "carbs": "Carbs"})
+        segs = [(lbl["protein"], kc["protein"], "#3b82f6"),
+                (lbl["fat"], kc["fat"], "#eab308"),
+                (lbl["carbs"], kc["carbs"], "#16a34a")]
+        ttl = ("Б/Ж/У" if lang != "en" else "Macros") + f" · {a} → {b}"
+        base = {"period": args.period, "from": a, "to": b, "metric": "macros",
+                "grams": {"protein_g": ms["protein_g"], "fat_g": ms["fat_g"], "carbs_g": ms["carbs_g"]},
+                "split_pct": {k: round(100 * kc[k] / tot) for k in kc}}
+        if args.fmt == "text":
+            base["format"] = "text"
+        else:
+            base["format"] = "svg"
+            avg = round(tot / days_logged)
+            base["svg"] = charts.donut_svg(
+                segs, title=ttl, center=(f"≈{avg}\nккал/д" if lang != "en" else f"≈{avg}\nkcal/d"))
+        _out(base)
+        return
+
+    chart, baseline, value_fmt, pairs = "line", None, "{:.1f}", []
+    if metric == "bodycomp":
+        # Metrics live on different scales (weight ~85, fat ~20); plot each as
+        # % change from its own first reading — all diverge from 0%, comparable.
+        title = "Состав тела, % от старта" if lang != "en" else "Body composition, % from start"
+        baseline, value_fmt = 0.0, "{:+.1f}%"
+        for key, field in (("weight", "weight_kg"), ("muscle", "muscle_kg"),
+                           ("fat", "fat_kg"), ("water", "water_kg")):
+            s = S.metric_series(bw, field)
+            if s and s[0][1]:
+                base = s[0][1]
+                pairs.append((short[key], [(d, round((v / base - 1) * 100, 2)) for d, v in s]))
+    elif metric in ("net", "energy"):
+        chart = "bar"
+        title = L["net"] + (" (− дефицит / + профицит)" if lang != "en" else " (− deficit / + surplus)")
+        pairs.append((L["net"], S.net_series(food, energy, basal)))
+    else:
+        field = _FIELD_ALIAS.get(metric, metric)
+        labels = {"weight_kg": L["weight"], "muscle_kg": L["muscle"], "fat_kg": L["fat"],
+                  "water_kg": L["water"], "fat_pct": L["fat_pct"]}
+        title = labels.get(field, field)
+        value_fmt = "{:.1f}%" if field == "fat_pct" else "{:.1f}"
+        pairs.append((title, S.metric_series(bw, field)))
+
+    pairs = [(lbl, s) for lbl, s in pairs if s]
+    if not pairs:
+        _out({"error": f"no data for metric '{metric}' in {a}..{b}", "from": a, "to": b})
+        return
+
+    dates = sorted({d for _, s in pairs for d, _ in s})
+    idx = {d: i for i, d in enumerate(dates)}
+    series = []
+    for lbl, s in pairs:
+        vals = [None] * len(dates)
+        for d, v in s:
+            vals[idx[d]] = v
+        series.append({"label": lbl, "values": vals})
+    x_labels = [d[5:] for d in dates]
+    full_title = f"{title} · {a} → {b}"
+
+    out = {"period": args.period, "from": a, "to": b, "metric": metric, "points": len(dates)}
+    if args.fmt == "text":
+        out["format"] = "text"
+        out["sparklines"] = {s["label"]: charts.sparkline(s["values"]) for s in series}
+        _out(out)
+        return
+    if args.fmt == "png":
+        png = _png_chart(series, x_labels, full_title)
+        if png:
+            out["format"] = "png"
+            out["png_base64"] = png
+            _out(out)
+            return
+        out["png_unavailable"] = "matplotlib not in sandbox — SVG returned instead"
+    out["format"] = "svg"
+    if chart == "bar":
+        out["svg"] = charts.bar_chart_svg(series[0]["values"], x_labels, title=full_title)
+    else:
+        out["svg"] = charts.line_chart_svg(series, x_labels, title=full_title,
+                                           value_fmt=value_fmt, baseline=baseline)
+    _out(out)
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="fittrack")
     p.add_argument("--config", help="path to fitness-config.json")
@@ -235,6 +479,10 @@ def build_parser():
     sub.add_parser("status").set_defaults(func=cmd_status)
     sub.add_parser("config-show").set_defaults(func=cmd_config_show)
     sub.add_parser("ensure-schema").set_defaults(func=cmd_ensure_schema)
+    sub.add_parser("meta-get").set_defaults(func=cmd_meta_get)
+    sp = sub.add_parser("meta-set")
+    sp.add_argument("--patch", required=True)
+    sp.set_defaults(func=cmd_meta_set)
 
     sp = sub.add_parser("resolve-date")
     sp.add_argument("--text", required=True)
@@ -309,6 +557,19 @@ def build_parser():
     sp.add_argument("--date-from", dest="date_from")
     sp.add_argument("--date-to", dest="date_to")
     sp.set_defaults(func=cmd_summary)
+
+    sp = sub.add_parser("report")
+    sp.add_argument("--period", default="week", choices=["week", "month", "year", "custom"])
+    sp.add_argument("--today")
+    sp.add_argument("--date-from", dest="date_from")
+    sp.add_argument("--date-to", dest="date_to")
+    sp.add_argument("--metric", default="auto",
+                    help="auto | weight | bodycomp | net | calories | adherence | deficit | "
+                         "macros | pr | muscle | fat | fat_pct | water")
+    sp.add_argument("--exercise", help="exercise name (for --metric pr)")
+    sp.add_argument("--pr-kind", dest="pr_kind", default="weight", choices=["weight", "volume"])
+    sp.add_argument("--format", dest="fmt", default="svg", choices=["svg", "png", "text"])
+    sp.set_defaults(func=cmd_report)
 
     sp = sub.add_parser("config-set")
     sp.add_argument("--patch", required=True)

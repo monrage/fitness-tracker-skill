@@ -137,7 +137,12 @@ Then show 3–4 example things they can say now:
 - «сегодня жал 80 кг 5×5 и присед 100×5×5»
 - «мой вес утром 84.5; мышцы 40.1, жир 26.9, вода 54.1»
 - «сегодня сожжено 3200 ккал, 1200 за активность»
-- «сводка за неделю»
+- «сводка за неделю» / «покажи мой прогресс»
+
+Tell them the tracker doesn't just *record* — it **shows progress**: weekly/monthly
+summaries plus charts (weight, body composition, energy balance, calories-vs-goal,
+adherence heatmap, PRs). You'll surface these proactively at the right moments (gently,
+never pushy — see `references/coaching.md`); they can also just ask to see them.
 
 ## Resuming an interrupted setup
 

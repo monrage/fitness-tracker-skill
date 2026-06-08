@@ -8,6 +8,7 @@ import sys
 SCRIPTS = os.path.join(os.path.dirname(__file__), "..", "fitness-tracker", "scripts")
 sys.path.insert(0, os.path.abspath(SCRIPTS))
 
+import charts  # noqa: E402
 import goals  # noqa: E402
 import nutrition  # noqa: E402
 import storage  # noqa: E402
@@ -127,6 +128,65 @@ bw3 = [storage.make_bodyweight("2026-06-02", fat_pct=22.5)]
 d3 = summarize.daily(food, workout, bw3, "2026-06-02", G)
 check("daily bodycomp fat_pct", d3["bodycomp"]["fat_pct"], 22.5)
 check("daily weight none when not logged", d3["bodyweight"], None)
+
+# ---- charts: sparkline + SVG + series helpers ----
+sp = charts.sparkline([1, 2, 3, 4, 5])
+check("sparkline len", len(sp), 5)
+check("sparkline rises", sp[0] < sp[-1], True)
+check("sparkline empty", charts.sparkline([]), "")
+check("sparkline gap is space", charts.sparkline([1, None, 5])[1], " ")
+svg = charts.line_chart_svg([{"label": "вес", "values": [85.0, 84.5, 84.0]}],
+                            ["06-01", "06-02", "06-03"], title="Вес")
+check("svg starts", svg.startswith("<svg"), True)
+check("svg has polyline", "polyline" in svg, True)
+check("svg closed", svg.strip().endswith("</svg>"), True)
+check("svg empty-data safe", charts.line_chart_svg([{"label": "x", "values": [None]}], ["a"]).startswith("<svg"), True)
+svg_pct = charts.line_chart_svg([{"label": "fat", "values": [0.0, -3.0, -7.0]}],
+                                ["d1", "d2", "d3"], value_fmt="{:+.1f}%", baseline=0.0)
+check("svg baseline dashed", "stroke-dasharray" in svg_pct, True)
+bar = charts.bar_chart_svg([-400.0, -300.0, 200.0, None, -100.0], ["a", "b", "c", "d", "e"], title="net")
+check("bar starts", bar.startswith("<svg"), True)
+check("bar has bars", bar.count("<rect") >= 4, True)
+check("bar closed", bar.strip().endswith("</svg>"), True)
+bvg = charts.bars_vs_goal_svg([2000.0, 2500.0, 1800.0], ["a", "b", "c"], 2100, title="kcal")
+check("bars_vs_goal starts", bvg.startswith("<svg"), True)
+check("bars_vs_goal has goal line", "stroke-dasharray" in bvg, True)
+check("bars_vs_goal bar count", bvg.count("<rect") >= 4, True)
+hm = charts.heatmap_calendar_svg([("2026-06-01", "on"), ("2026-06-02", "off"), ("2026-06-03", "none")], title="adh")
+check("heatmap starts", hm.startswith("<svg"), True)
+check("heatmap closed", hm.strip().endswith("</svg>"), True)
+area = charts.line_chart_svg([{"label": "cum", "values": [-100.0, -400.0, -900.0]}],
+                             ["a", "b", "c"], baseline=0.0, fill=True)
+check("area has polygon", "<polygon" in area, True)
+mk = summarize.macro_split(food)
+check("macro_split protein kcal", mk["kcal"]["protein"], round(525 * 4, 1))
+check("macro_split carbs kcal", mk["kcal"]["carbs"], round(705 * 4, 1))
+dn = charts.donut_svg([("P", 2100, "#3b82f6"), ("F", 1890, "#eab308"), ("C", 2820, "#16a34a")],
+                      title="m", center="6810")
+check("donut starts", dn.startswith("<svg"), True)
+check("donut has slice", "<path" in dn, True)
+check("donut closed", dn.strip().endswith("</svg>"), True)
+
+ns = summarize.net_series(food, energy, 1800)
+check("net_series len", len(ns), 2)
+check("net_series first", ns[0], ("2026-06-01", -400.0))
+check("net_series second", ns[1], ("2026-06-04", -500.0))
+check("metric_series muscle", summarize.metric_series(bw2, "muscle_kg"),
+      [("2026-06-01", 40.0), ("2026-06-04", 40.5)])
+
+# ---- report-series helpers for the new charts ----
+dk = summarize.daily_kcal_series(food)
+check("daily_kcal len", len(dk), 4)
+check("daily_kcal first", dk[0], ("2026-06-01", 2000.0))
+cum = summarize.cumulative_net_series(food, energy, 1800)
+check("cumnet len", len(cum), 2)
+check("cumnet running -400-500", cum[1], ("2026-06-04", -900.0))
+adh = summarize.adherence_calendar(food, G, "2026-06-01", "2026-06-04")
+check("adherence days", len(adh), 4)
+check("adherence on day1", adh[0], ("2026-06-01", "on"))
+check("adherence off day3", adh[2], ("2026-06-03", "off"))
+prs = summarize.pr_series(workout, "жим лёжа", "weight")
+check("pr series", prs, [("2026-06-01", 80.0), ("2026-06-04", 85.0)])
 
 if fails:
     print("FAILED:")

@@ -20,6 +20,7 @@ __pycache__/
 guide-*.png
 mock-*.png
 deploy-*.png
+report-*.png
 
 # ── OS / editors ──
 .DS_Store

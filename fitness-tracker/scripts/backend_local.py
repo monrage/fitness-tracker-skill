@@ -63,3 +63,14 @@ class LocalBackend(Backend):
     def list_all(self, kind):
         data = self._load()
         return sorted(data[kind], key=lambda r: (r.get("date", ""), r.get("_seq", 0)))
+
+    def read_meta(self):
+        return dict(self._load().get("_meta") or {})
+
+    def write_meta(self, patch):
+        data = self._load()
+        meta = dict(data.get("_meta") or {})
+        meta.update(patch or {})
+        data["_meta"] = meta
+        self._save(data)
+        return meta

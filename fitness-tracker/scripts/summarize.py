@@ -143,6 +143,89 @@ def _energy_period(energy, per_day_kcal, basal_default):
     return res
 
 
+def metric_series(records, field):
+    """[(date, value), ...] for a body-measurement field, sorted, skipping gaps."""
+    return [(r["date"], r[field]) for r in sorted(records, key=lambda r: r.get("date", ""))
+            if r.get(field) is not None]
+
+
+def net_series(food, energy, basal_default):
+    """[(date, net_kcal), ...] for days with both logged food and a resolvable
+    total burn. net = intake − total_out (`<0` = deficit). Feeds charts/sparklines."""
+    per_day = {}
+    for r in food:
+        per_day[r["date"]] = per_day.get(r["date"], 0.0) + float(r.get("kcal") or 0)
+    out = []
+    for r in sorted((energy or []), key=lambda r: r.get("date", "")):
+        to = _resolve_total_out(r, basal_default)
+        intake = per_day.get(r.get("date"))
+        if to is not None and intake is not None:
+            out.append((r["date"], round(intake - to, 1)))
+    return out
+
+
+def daily_kcal_series(food):
+    """[(date, kcal), ...] — total food calories per logged day, sorted."""
+    per = {}
+    for r in food:
+        per[r["date"]] = per.get(r["date"], 0.0) + float(r.get("kcal") or 0)
+    return [(d, round(per[d], 1)) for d in sorted(per)]
+
+
+def adherence_calendar(food, goals, date_from, date_to):
+    """Per calendar day in [from, to]: 'on' (kcal+protein in goal) / 'off'
+    (logged but off target) / 'none' (nothing logged). Feeds the adherence heatmap."""
+    tol = (goals or {}).get("tolerance_pct", 7)
+    per = {d: _sum_macros([r for r in food if r["date"] == d])
+           for d in {r["date"] for r in food}}
+    out, a, b = [], _dt.date.fromisoformat(date_from), _dt.date.fromisoformat(date_to)
+    d = a
+    while d <= b:
+        iso = d.isoformat()
+        if iso not in per:
+            st = "none"
+        elif goals and goals.get("kcal") and _on_target(per[iso], goals, tol):
+            st = "on"
+        else:
+            st = "off"
+        out.append((iso, st))
+        d += _dt.timedelta(days=1)
+    return out
+
+
+def cumulative_net_series(food, energy, basal_default):
+    """[(date, running_total_net), ...] — accumulates net_series (`<0` = banked deficit)."""
+    cum, out = 0.0, []
+    for d, net in net_series(food, energy, basal_default):
+        cum += net
+        out.append((d, round(cum, 1)))
+    return out
+
+
+def pr_series(workout, exercise, kind="weight"):
+    """[(date, best), ...] — best working weight (kind='weight') or volume
+    (kind='volume') for one exercise per day it appears, sorted."""
+    field = "weight_kg" if kind == "weight" else "volume"
+    by_day = {}
+    for r in workout:
+        if r.get("exercise") != exercise:
+            continue
+        v = r.get(field)
+        if v is None:
+            continue
+        by_day[r["date"]] = max(by_day.get(r["date"], v), v)
+    return [(d, by_day[d]) for d in sorted(by_day)]
+
+
+def macro_split(food):
+    """Total macro grams + their calorie shares (P×4 / F×9 / C×4) for a donut."""
+    t = _sum_macros(food)
+    return {"protein_g": t["protein_g"], "fat_g": t["fat_g"], "carbs_g": t["carbs_g"],
+            "kcal": {"protein": round(t["protein_g"] * 4, 1),
+                     "fat": round(t["fat_g"] * 9, 1),
+                     "carbs": round(t["carbs_g"] * 4, 1)}}
+
+
 def daily(food, workout, bodyweight, date, goals=None, energy=None, basal_default=None):
     fday = [r for r in food if r.get("date") == date]
     wday = [r for r in workout if r.get("date") == date]

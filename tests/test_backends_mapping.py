@@ -109,6 +109,19 @@ bwback = bs.record_from_row("bodyweight", bs.COLUMNS["bodyweight"], bwrow, 2)
 check("sheets bw muscle rt", bwback["muscle_kg"], 40.1)
 check("sheets bw water rt", bwback["water_kg"], 54.1)
 
+# ---- local meta KV round-trip ----
+import tempfile  # noqa: E402
+
+_tmp = tempfile.mkdtemp()
+os.environ["FITTRACK_CONFIG"] = os.path.join(_tmp, "fitness-config.json")
+_be = storage.get_backend({"backend": {"type": "local", "local": {"path": "data.json"}}})
+_be.ensure_schema()
+check("meta empty initially", _be.read_meta(), {})
+_be.write_meta({"last_weekly": "2026-06-07"})
+_be.write_meta({"last_monthly": "2026-05"})
+check("meta persisted weekly", _be.read_meta().get("last_weekly"), "2026-06-07")
+check("meta merge keeps both", sorted(_be.read_meta()), ["last_monthly", "last_weekly"])
+
 if fails:
     print("FAILED:")
     for x in fails:

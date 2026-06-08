@@ -35,6 +35,8 @@ you →  weekly summary
 - **Dates:** understands "yesterday", "on Monday", `05.06`, ISO — places entries on the
   right day (RU + EN).
 - **Summaries:** day / week / month / year — adherence, streaks, PRs, weight trajectory.
+- **Visual reports:** weight, body composition, energy balance, calories-vs-goal, an
+  adherence heatmap, cumulative deficit and lift PRs — rendered as charts right in chat.
 - **Bilingual** UX (Russian + English).
 
 ## 🚀 Install

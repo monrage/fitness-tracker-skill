@@ -168,6 +168,29 @@ The CLI returns structured stats (totals, averages, adherence, streaks, PRs,
 bodyweight trend). YOU format them into a clear, encouraging report — see
 `references/summaries.md` for layout and what to highlight.
 
+## Visual reports (charts)
+
+Beyond text summaries the CLI renders **charts** users love. `report` prints JSON with
+an SVG string (default) you surface as an **artifact**, or text sparklines.
+
+```
+python scripts/fittrack.py report --period month --today 2026-06-07 --metric bodycomp
+```
+
+`--metric`: `weight` · `bodycomp` (muscle/fat/water as % from start) · `net` (daily
+deficit/surplus bars) · `calories` (vs goal line) · `adherence` (month heatmap) ·
+`deficit` (cumulative net → est. fat change) · `macros` (Б/Ж/У donut) · `pr --exercise
+"<name>"` (lift progression). `--format`: `svg` (default — show as artifact) · `png` (only
+if matplotlib is in the sandbox) · `text` (sparklines). `--metric auto` (default) picks
+the most relevant for the logged data.
+
+**Presenting:** show the SVG as an artifact + ONE warm line in the user's language.
+**Never show the user the CLI command** — `report --metric …`, `meta-set`, etc. are
+internal; the user sees only the chart and the takeaway. Offer reports proactively but
+**gently** at natural moments (a week/month closing, a new PR, a milestone), never pushily —
+rules, tone and the `meta` last-viewed mechanism (`meta-get` / `meta-set`) are in
+`references/coaching.md`.
+
 ## Proactive coaching
 
 After logging or summarizing, look for one useful, non-nagging observation

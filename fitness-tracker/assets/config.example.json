@@ -11,7 +11,7 @@
     "notion": {
       "token": "ntn_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
       "parent_page_id": "",
-      "databases": { "food": "", "workout": "", "bodyweight": "", "energy": "" }
+      "databases": { "food": "", "workout": "", "bodyweight": "", "energy": "", "meta": "" }
     },
     "sheets": {
       "spreadsheet_id": "",

@@ -26,6 +26,9 @@ DB_TITLES = {
     "bodyweight": "FitnessLife — Bodyweight",
     "energy": "FitnessLife — Energy",
 }
+# A tiny key/value database for app state (last-viewed report dates, etc.).
+META_TITLE = "FitnessLife — Meta"
+META_PROPS = {"Key": {"title": {}}, "Value": {"rich_text": {}}}
 
 # (Notion property name, type, our record field). First title prop per db is the row label.
 SCHEMAS = {
@@ -163,16 +166,20 @@ class NotionBackend(Backend):
 
     def ensure_schema(self):
         missing = [k for k in KINDS if not self.dbs.get(k)]
+        if not self.dbs.get("meta"):
+            missing.append("meta")
         if not missing:
             return {"backend": "notion", "databases": self.dbs}
         if not self.parent_page_id:
             raise RuntimeError("Notion: set backend.notion.parent_page_id, then run ensure-schema")
         created = {}
         for k in missing:
+            title = META_TITLE if k == "meta" else DB_TITLES[k]
+            props = META_PROPS if k == "meta" else schema_props(k)
             res = self._api("POST", "/databases", {
                 "parent": {"type": "page_id", "page_id": self.parent_page_id},
-                "title": [{"type": "text", "text": {"content": DB_TITLES[k]}}],
-                "properties": schema_props(k),
+                "title": [{"type": "text", "text": {"content": title}}],
+                "properties": props,
             })
             self.dbs[k] = res["id"]
             created[k] = res["id"]
@@ -216,3 +223,32 @@ class NotionBackend(Backend):
             "sorts": [{"property": "Date", "direction": "ascending"}],
             "page_size": 100,
         })
+
+    def read_meta(self):
+        db = self.dbs.get("meta")
+        if not db:
+            return {}
+        out = {}
+        for pg in self._api("POST", f"/databases/{db}/query", {"page_size": 100}).get("results", []):
+            props = pg.get("properties", {})
+            k = "".join(t.get("plain_text", "") for t in props.get("Key", {}).get("title", []))
+            v = "".join(t.get("plain_text", "") for t in props.get("Value", {}).get("rich_text", []))
+            if k:
+                out[k] = v
+        return out
+
+    def write_meta(self, patch):
+        db = self.dbs.get("meta")
+        if not db:
+            raise RuntimeError("Notion: meta database not configured — run ensure-schema")
+        for k, v in (patch or {}).items():
+            val = {"rich_text": [{"text": {"content": str(v)}}]} if v != "" else {"rich_text": []}
+            found = self._api("POST", f"/databases/{db}/query",
+                              {"filter": {"property": "Key", "title": {"equals": str(k)}}, "page_size": 1})
+            res = found.get("results")
+            if res:
+                self._api("PATCH", f"/pages/{res[0]['id']}", {"properties": {"Value": val}})
+            else:
+                self._api("POST", "/pages", {"parent": {"database_id": db}, "properties": {
+                    "Key": {"title": [{"text": {"content": str(k)}}]}, "Value": val}})
+        return self.read_meta()
