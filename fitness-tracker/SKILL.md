@@ -105,7 +105,9 @@ python scripts/fittrack.py log-workout --date 2026-06-07 --exercise "жим лё
 ```
 
 Cardio uses `--duration` / `--distance`; `--type` is strength/cardio/mobility/
-sport. Strength volume (sets·reps·weight) is computed automatically.
+sport. Strength volume (sets·reps·weight) is computed automatically. Flags are plain:
+`--weight` / `--duration` / `--distance` (NOT `--weight-kg` / `--duration-min` / `--distance-km`),
+plus `--sets` `--reps` `--rpe` `--notes`.
 
 ## Logging bodyweight
 
@@ -131,6 +133,7 @@ python scripts/fittrack.py summary --period day   --today 2026-06-07
 python scripts/fittrack.py summary --period week  --today 2026-06-07
 python scripts/fittrack.py summary --period month --today 2026-06-07
 python scripts/fittrack.py summary --period year  --today 2026-06-07
+python scripts/fittrack.py summary --period custom --date-from 2026-06-01 --date-to 2026-06-15
 ```
 
 The CLI returns structured stats (totals, averages, adherence, streaks, PRs,

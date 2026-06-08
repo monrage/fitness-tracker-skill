@@ -63,7 +63,7 @@ Requirements: a paid claude.ai plan (Pro / Max / Team) with **code execution** e
 | **Local file** | no cloud / max privacy | none |
 
 ## 🔒 Privacy
-Your data stays yours. Tokens live only in your local `fitness-config.json` (never
+Your data stays yours. Tokens live only in your own `fitness-config.json` (kept in your Claude Project, never
 committed); records go only to the backend you chose; the code calls only the APIs you
 enable. No telemetry. See [SECURITY.md](SECURITY.md).
 

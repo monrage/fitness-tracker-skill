@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>fitness-tracker — установка в Claude / install in Claude</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%23d97757'/%3E%3Cg%20stroke='%23fff'%20stroke-width='2.6'%20stroke-linecap='round'%3E%3Cline%20x1='8.5'%20y1='16'%20x2='23.5'%20y2='16'/%3E%3Cline%20x1='9'%20y1='11.5'%20x2='9'%20y2='20.5'/%3E%3Cline%20x1='23'%20y1='11.5'%20x2='23'%20y2='20.5'/%3E%3Cline%20x1='5.5'%20y1='13.5'%20x2='5.5'%20y2='18.5'/%3E%3Cline%20x1='26.5'%20y1='13.5'%20x2='26.5'%20y2='18.5'/%3E%3C/g%3E%3C/svg%3E">
+<script>(function(){var s=null;try{s=localStorage.getItem('ft_lang')}catch(e){}var lc=(navigator.language||'').slice(0,2).toLowerCase();document.documentElement.dataset.lang=s||(['ru','uk','be','kk'].indexOf(lc)>=0?'ru':'en');})();</script>
 <style>
   :root{
     --bg:#262624; --surface:#2f2e2c; --line:#403f3a;
@@ -22,13 +23,14 @@
   .wrap{max-width:880px;margin:0 auto;padding:0 20px 80px}
 
   /* i18n */
-  body[data-lang="ru"] .en{display:none}
-  body[data-lang="en"] .ru{display:none}
+  html[data-lang="ru"] .en{display:none}
+  html[data-lang="en"] .ru{display:none}
   .langbar{position:fixed;top:14px;right:14px;z-index:50;display:flex;gap:4px;background:var(--surface);
     border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
   .lb{display:flex;align-items:center;gap:7px;border:0;background:transparent;color:var(--muted);
     font:600 13px var(--sans);padding:6px 12px;border-radius:999px;cursor:pointer}
   .lb[aria-pressed="true"]{background:var(--accent);color:#1a1916}
+  .lb:focus-visible,.tab:focus-visible,.cta:focus-visible,details summary:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:6px}
   .flag{width:19px;height:13px;border-radius:2px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
   .lb.gh{padding:6px 9px;color:var(--muted)}.lb.gh:hover{color:var(--ink)}
   .ghmark{width:17px;height:17px;fill:currentColor;display:block}
@@ -170,6 +172,15 @@
   .smenu .sel{background:rgba(217,119,87,.16);color:#f3b69c;font-weight:600}
   h2.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin:46px 0 0}
   footer{text-align:center;color:var(--faint);font-size:13px;margin-top:48px;padding-top:24px;border-top:1px solid var(--line)}
+  @media (max-width:520px){
+    .scols{grid-template-columns:1fr}
+    table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .langbar{top:8px;right:8px;padding:3px;gap:2px}
+    .lb{padding:6px 9px}
+    header.hero{padding:48px 16px 24px}
+    .wrap{padding:0 16px 60px}
+    .step{padding:20px 16px 18px}
+  }
 </style>
 </head>
 <body data-lang="ru">
@@ -184,7 +195,7 @@
 </div>
 
 <header class="hero">
-  <div class="logo">🏋️</div>
+  <div class="logo" aria-hidden="true">🏋️</div>
   <h1><b>fitness-tracker</b> — <span class="ru">установка в Claude</span><span class="en">install in Claude</span></h1>
   <p><span class="ru">Личный трекер питания и тренировок в чате: КБЖУ, тренировки, вес, цели и сводки. Данные — в вашем Notion / Google Sheets / локальном файле.</span><span class="en">A personal nutrition & training tracker in chat: calories/macros, workouts, bodyweight, goals and summaries. Your data lives in your own Notion / Google Sheets / local file.</span></p>
   <div class="badges">
@@ -258,7 +269,7 @@
     <div class="step-h"><div class="num">3</div><h3><span class="ru">Создать проект</span><span class="en">Create a project</span> <span class="req"><span class="ru">обязательно</span><span class="en">required</span></span></h3></div>
     <p class="sub"><span class="ru">Проект — это «дом» трекера: именно в нём между сессиями переживёт ваш конфиг с целями и доступом к хранилищу.</span><span class="en">The project is the tracker's home: it's where your config (goals + storage access) survives between sessions.</span></p>
     <p class="tx"><span class="ru">На главной Claude нажмите <b>New project</b> → назовите, например, <code>FitnessLife</code>. Откройте его и убедитесь, что скилл <b>fitness-tracker</b> доступен внутри проекта. Всё общение с трекером ведите <b>внутри этого проекта</b>.</span><span class="en">In Claude, click <b>New project</b> → name it, e.g. <code>FitnessLife</code>. Open it and make sure the <b>fitness-tracker</b> skill is available inside. Always talk to the tracker <b>inside this project</b>.</span></p>
-    <div class="keynote"><span class="ic">📌</span><div><span class="ru">Почему обязательно: сам скилл <b>ничего не помнит</b> между чатами. Память даёт проект — там лежит файл <code>fitness-config.json</code> (добавим на шаге&nbsp;5). В одном проекте можно открывать <b>сколько угодно чатов</b> — все они делят эту память (конфиг и данные).</span><span class="en">Why required: the skill itself <b>remembers nothing</b> between chats. The project provides memory — it holds <code>fitness-config.json</code> (added in step&nbsp;5). Inside one project you can open <b>as many chats as you like</b> — they all share this memory (config and data).</span></div></div>
+    <div class="keynote"><span class="ic">📌</span><div><span class="ru">Почему обязательно: сам скилл <b>ничего не помнит</b> между чатами. Память даёт проект — там лежит файл <code>fitness-config.json</code> (вы сохраните его туда на шаге&nbsp;5). В одном проекте можно открывать <b>сколько угодно чатов</b> — все они делят эту память (конфиг и данные).</span><span class="en">Why required: the skill itself <b>remembers nothing</b> between chats. The project provides memory — it holds <code>fitness-config.json</code> (added in step&nbsp;5). Inside one project you can open <b>as many chats as you like</b> — they all share this memory (config and data).</span></div></div>
   </section>
 
   <!-- STEP 4 -->
@@ -267,12 +278,12 @@
     <p class="sub"><span class="ru">Выберите бэкенд — ниже вкладка под каждый.</span><span class="en">Pick your backend — a tab for each is below.</span></p>
 
     <div class="tabs" role="tablist">
-      <button class="tab" data-tab="notion" aria-selected="true">Notion <span class="ru">(реком.)</span><span class="en">(rec.)</span></button>
-      <button class="tab" data-tab="sheets" aria-selected="false">Google Sheets</button>
-      <button class="tab" data-tab="local" aria-selected="false"><span class="ru">Локальный файл</span><span class="en">Local file</span></button>
+      <button class="tab" role="tab" data-tab="notion" aria-selected="true">Notion <span class="ru">(реком.)</span><span class="en">(rec.)</span></button>
+      <button class="tab" role="tab" data-tab="sheets" aria-selected="false">Google Sheets</button>
+      <button class="tab" role="tab" data-tab="local" aria-selected="false"><span class="ru">Локальный файл</span><span class="en">Local file</span></button>
     </div>
 
-    <div class="tabpanel" data-panel="notion" data-show="1">
+    <div class="tabpanel" role="tabpanel" data-panel="notion" data-show="1">
     <ol class="flow">
       <li><span class="ru">Создайте (или откройте) <b>workspace</b> в Notion.</span><span class="en">Create (or open) a <b>workspace</b> in Notion.</span></li>
       <li><span class="ru">Создайте в нём <b>чистую страницу</b> (например, «FitnessLife»). Лишнее со страницы можно удалить — под ней скилл создаст три базы.</span><span class="en">Create a <b>blank page</b> in it (e.g. "FitnessLife"). Clear out any default content — the skill will create three databases under it.</span></li>
@@ -283,12 +294,12 @@
       <li><span class="ru">На вкладке <b>Configuration</b> скопируйте <b>Internal Integration Token</b> (начинается с <code>ntn_</code>).</span><span class="en">On the <b>Configuration</b> tab copy the <b>Internal Integration Token</b> (starts with <code>ntn_</code>).</span></li>
     </ol>
 
-    <div class="crit"><span class="ru">⚠️ Шаг 6 — самый важный: <b>Content access → Private → Top level pages → выберите созданную страницу</b>. Без этого интеграция не увидит страницу и будет ошибка <b>403</b>.</span><span class="en">⚠️ Item 6 is the critical one: <b>Content access → Private → Top level pages → select your page</b>. Without it the integration can't see the page and you'll get a <b>403</b>.</span></div>
+    <div class="crit"><span class="ru">⚠️ Шаг 6 — самый важный: <b>Content access → Private → Top level pages → выберите созданную страницу</b>. <b>Нет такой вкладки?</b> Тогда откройте саму страницу → <code>•••</code> (или Share) → <b>Connections</b> → добавьте вашу интеграцию — это то же самое. Без этого интеграция не увидит страницу и будет ошибка <b>403</b>.</span><span class="en">⚠️ Item 6 is the critical one: <b>Content access → Private → Top level pages → select your page</b>. <b>No such tab?</b> Then open the page itself → <code>•••</code> (or Share) → <b>Connections</b> → add your integration — same effect. Without it the integration can't see the page and you'll get a <b>403</b>.</span></div>
 
     <div class="send"><span>📨</span><div><span class="ru"><b>Что отправить Claude:</b> в чате проекта пришлите <b>токен</b> (<code>ntn_…</code>) <b>и ссылку на страницу</b> вместе, одним сообщением. Остальное (создание трёх баз) Claude сделает сам.</span><span class="en"><b>What to send Claude:</b> in the project chat, send the <b>token</b> (<code>ntn_…</code>) <b>and the page link</b> together, in one message. Claude does the rest (creates the three databases).</span></div></div>
     </div>
 
-    <div class="tabpanel" data-panel="sheets">
+    <div class="tabpanel" role="tabpanel" data-panel="sheets">
       <div class="opt"><span class="tag alt">advanced</span><div><span class="ru">Больше шагов, чем у Notion — одноразовая OAuth-авторизация в браузере. Зато данные в вашей таблице.</span><span class="en">More steps than Notion — a one-time browser OAuth. In return, data lives in your spreadsheet.</span></div></div>
       <ol class="flow">
         <li><span class="ru">Создайте проект в <b>Google Cloud</b> и включите <b>Google Sheets API</b>.</span><span class="en">Create a <b>Google Cloud</b> project and enable the <b>Google Sheets API</b>.</span></li>
@@ -301,7 +312,7 @@
       <div class="crit"><span class="ru">⚠️ Обязательно добавьте свой аккаунт в <b>Test users</b> (OAuth consent screen) — иначе обновление токена падает с <code>invalid_grant</code>.</span><span class="en">⚠️ You must add your account to <b>Test users</b> (OAuth consent screen) — otherwise token refresh fails with <code>invalid_grant</code>.</span></div>
     </div>
 
-    <div class="tabpanel" data-panel="local">
+    <div class="tabpanel" role="tabpanel" data-panel="local">
       <p class="tx"><span class="ru"><b>Настройка не нужна.</b> Claude создаст файл <code>fitness-data.json</code> и будет писать записи туда. На claude.ai держите <b>оба</b> файла — <code>fitness-config.json</code> и <code>fitness-data.json</code> — в знаниях проекта и пересохраняйте после сессий.</span><span class="en"><b>No setup.</b> Claude creates <code>fitness-data.json</code> and writes records there. On claude.ai keep <b>both</b> files — <code>fitness-config.json</code> and <code>fitness-data.json</code> — in the project knowledge and re-save them after sessions.</span></p>
       <div class="infobox"><span>💡</span><div><span class="ru">Локальный бэкенд проще всего, но файл песочницы сам по себе не переживает сессию — для долговечности надёжнее Notion/Sheets. Для использования <b>вне Claude</b> можно запускать встроенный CLI напрямую (см. README в репозитории).</span><span class="en">The local backend is simplest, but the sandbox file doesn't persist on its own — Notion/Sheets are safer for durability. For use <b>outside Claude</b>, you can run the bundled CLI directly (see the repo README).</span></div></div>
     </div>
@@ -378,22 +389,20 @@
 
   <footer>
     fitness-tracker · <span class="ru">персональный трекер КБЖУ и тренировок для Claude.</span><span class="en">a personal calorie/macro & training tracker for Claude.</span><br>
-    <span class="ru">Данные хранятся в вашем аккаунте. Токены и записи не покидают ваше хранилище.</span><span class="en">Your data stays in your account. Tokens and records never leave your storage.</span>
+    <span class="ru">Данные — в вашем аккаунте: токены живут в вашем Claude Project, записи — только в выбранном вами хранилище.</span><span class="en">Your data stays with you: tokens live in your Claude Project, records only in your chosen storage.</span>
     <div class="footlinks"><a href="https://github.com/monrage/fitness-tracker-skill" target="_blank" rel="noopener">GitHub</a> · <a href="fitness-tracker.zip"><span class="ru">Скачать скилл</span><span class="en">Download skill</span></a> · <span class="ru">лицензия</span><span class="en">licensed</span> MIT</div>
   </footer>
 </div>
 
 <script>
   (function(){
-    var b=document.body;
+    var el=document.documentElement;
     function setLang(l){
-      b.dataset.lang=l;
-      document.documentElement.lang=l;
+      el.dataset.lang=l; el.lang=l;
       document.querySelectorAll('.lb[data-set]').forEach(function(x){ x.setAttribute('aria-pressed', String(x.dataset.set===l)); });
       try{ localStorage.setItem('ft_lang', l); }catch(e){}
     }
-    var saved=null; try{ saved=localStorage.getItem('ft_lang'); }catch(e){}
-    setLang(saved || ((navigator.language||'ru').slice(0,2).toLowerCase()==='en' ? 'en' : 'ru'));
+    setLang(el.dataset.lang || 'ru');   // initial language already chosen by the head script (no FOUC)
     document.querySelectorAll('.lb[data-set]').forEach(function(x){ x.addEventListener('click', function(){ setLang(x.dataset.set); }); });
 
     function setTab(t){

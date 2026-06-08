@@ -62,7 +62,9 @@ python scripts/fittrack.py ensure-schema          # creates the databases, retur
 python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases":{"food":"<id>","workout":"<id>","bodyweight":"<id>"}}}}'
 ```
 (For Sheets/local the steps differ — follow the backend reference.)
-Verify with `ensure-schema` (idempotent) or a `status` check.
+Verify real connectivity with a **read** — e.g. `summary --period day --today <today>`; a successful
+read proves the backend works. (`ensure-schema` alone is a no-op once the db ids are in config — it
+returns them without calling the backend, so it does not prove the connection.)
 
 ## Step 3 — Set goals
 
