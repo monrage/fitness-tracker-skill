@@ -87,14 +87,14 @@ python scripts/fittrack.py config-set --patch '{
 python scripts/fittrack.py ensure-schema
 ```
 
-Команда создаёт три вкладки (если их ещё нет) и записывает заголовочные строки автоматически.
+Команда создаёт четыре вкладки (если их ещё нет) и записывает заголовочные строки автоматически.
 Операция идемпотентна — запускать повторно безопасно.
 
 ---
 
 ## Структура таблицы
 
-После `ensure-schema` в таблице появятся три вкладки со следующими колонками (порядок строгий):
+После `ensure-schema` в таблице появятся четыре вкладки со следующими колонками (порядок строгий):
 
 ### Food
 
@@ -133,10 +133,24 @@ python scripts/fittrack.py ensure-schema
 |---|---------|-----|----------|
 | A | `date` | YYYY-MM-DD | Дата взвешивания |
 | B | `weight_kg` | number | Вес, кг |
-| C | `notes` | string | Заметки |
+| C | `muscle_kg` | number | Скелетная мускулатура, кг |
+| D | `fat_kg` | number | Масса жировой ткани, кг |
+| E | `fat_pct` | number | Процент жира |
+| F | `water_kg` | number | Вода в организме, кг |
+| G | `notes` | string | Заметки |
+
+### Energy
+
+| # | Колонка | Тип | Описание |
+|---|---------|-----|----------|
+| A | `date` | YYYY-MM-DD | Дата |
+| B | `activity_kcal` | number | Потрачено на активность, ккал |
+| C | `basal_kcal` | number | Базовый расход (BMR), ккал |
+| D | `total_out_kcal` | number | Всего потрачено, ккал |
+| E | `notes` | string | Заметки |
 
 > CSV-пример заголовка и одной строки для вкладки **Food** — см. `assets/sheet-template.csv`.
-> Вкладки Workout и Bodyweight создаются автоматически командой `ensure-schema`.
+> Вкладки Workout, Bodyweight и Energy создаются автоматически командой `ensure-schema`.
 
 ---
 

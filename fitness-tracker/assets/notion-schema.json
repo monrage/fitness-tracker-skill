@@ -38,7 +38,22 @@
         "Entry":     { "type": "title" },
         "Date":      { "type": "date" },
         "Weight kg": { "type": "number" },
+        "Muscle kg": { "type": "number" },
+        "Fat kg":    { "type": "number" },
+        "Fat %":     { "type": "number" },
+        "Water kg":  { "type": "number" },
         "Notes":     { "type": "rich_text" }
+      }
+    },
+    "energy": {
+      "title": "FitnessLife — Energy",
+      "properties": {
+        "Entry":          { "type": "title" },
+        "Date":           { "type": "date" },
+        "Activity kcal":  { "type": "number" },
+        "Basal kcal":     { "type": "number" },
+        "Total out kcal": { "type": "number" },
+        "Notes":          { "type": "rich_text" }
       }
     }
   }

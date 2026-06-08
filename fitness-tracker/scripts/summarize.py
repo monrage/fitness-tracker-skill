@@ -8,6 +8,8 @@ from __future__ import annotations
 import datetime as _dt
 
 _MACROS = ("kcal", "protein_g", "fat_g", "carbs_g")
+_BODYCOMP = ("weight_kg", "muscle_kg", "fat_kg", "fat_pct", "water_kg")
+_KCAL_PER_KG_FAT = 7700  # rough energy density of body fat, for deficit -> fat-loss estimates
 
 
 def _sum_macros(food_records):
@@ -58,17 +60,103 @@ def _on_target(totals, goals, tol_pct):
     return True
 
 
-def daily(food, workout, bodyweight, date, goals=None):
+def _metric_trend(records, field):
+    """start/end/delta for one body-composition metric across the records that
+    actually carry it (None values are skipped). Returns None if no data."""
+    pts = [(r["date"], r[field]) for r in sorted(records, key=lambda r: r.get("date", ""))
+           if r.get(field) is not None]
+    if not pts:
+        return None
+    return {
+        "start": pts[0][1], "start_date": pts[0][0],
+        "end": pts[-1][1], "end_date": pts[-1][0],
+        "delta": round(pts[-1][1] - pts[0][1], 2),
+        "points": len(pts),
+    }
+
+
+def _resolve_total_out(rec, basal_default):
+    """Total daily burn from an energy record: trust an explicit total, else fill
+    basal from the default (config / BMR) and use total = basal + activity."""
+    t = rec.get("total_out_kcal")
+    if t is not None:
+        return t
+    b = rec.get("basal_kcal")
+    b = b if b is not None else basal_default
+    a = rec.get("activity_kcal")
+    if b is not None and a is not None:
+        return round(b + a, 2)
+    return None
+
+
+def _energy_day(rec, intake_kcal, basal_default):
+    """One day's energy balance: intake (food) vs out (basal + activity)."""
+    if not rec:
+        return None
+    b = rec.get("basal_kcal")
+    out = {
+        "intake_kcal": round(intake_kcal, 1),
+        "basal_kcal": b if b is not None else basal_default,
+        "activity_kcal": rec.get("activity_kcal"),
+        "total_out_kcal": _resolve_total_out(rec, basal_default),
+    }
+    t = out["total_out_kcal"]
+    if t is not None:
+        net = round(intake_kcal - t, 1)
+        out["net_kcal"] = net  # < 0 = deficit, > 0 = surplus
+        out["balance"] = "deficit" if net < 0 else ("surplus" if net > 0 else "even")
+    return out
+
+
+def _energy_period(energy, per_day_kcal, basal_default):
+    """Period energy aggregate: avg burn, cumulative net and the fat change it
+    predicts (cumulative_net / 7700). Net is only summed for days that have both
+    an energy record and logged food, so the figure is honest about coverage."""
+    erecs = sorted((energy or []), key=lambda r: r.get("date", ""))
+    if not erecs:
+        return None
+    sum_out = sum_act = 0.0
+    n_out = n_act = 0
+    nets = []
+    for r in erecs:
+        to = _resolve_total_out(r, basal_default)
+        if to is not None:
+            sum_out += to
+            n_out += 1
+        if r.get("activity_kcal") is not None:
+            sum_act += r["activity_kcal"]
+            n_act += 1
+        intake = per_day_kcal.get(r.get("date"))
+        if to is not None and intake is not None:
+            nets.append(round(intake - to, 1))
+    res = {
+        "days": len(erecs),
+        "avg_total_out": round(sum_out / n_out, 1) if n_out else None,
+        "avg_activity": round(sum_act / n_act, 1) if n_act else None,
+    }
+    if nets:
+        cum = round(sum(nets), 1)
+        res["net_days"] = len(nets)
+        res["cumulative_net"] = cum
+        res["avg_net_per_day"] = round(cum / len(nets), 1)
+        res["expected_fat_change_kg"] = round(cum / _KCAL_PER_KG_FAT, 2)
+    return res
+
+
+def daily(food, workout, bodyweight, date, goals=None, energy=None, basal_default=None):
     fday = [r for r in food if r.get("date") == date]
     wday = [r for r in workout if r.get("date") == date]
     bw = next((r for r in bodyweight if r.get("date") == date), None)
+    eday = next((r for r in (energy or []) if r.get("date") == date), None)
     totals = _sum_macros(fday)
     out = {
         "date": date,
         "totals": totals,
         "meals": _by_meal(fday),
         "workouts": wday,
-        "bodyweight": bw["weight_kg"] if bw else None,
+        "bodyweight": bw.get("weight_kg") if bw else None,
+        "bodycomp": ({f: bw[f] for f in _BODYCOMP if bw.get(f) is not None} or None) if bw else None,
+        "energy": _energy_day(eday, totals["kcal"], basal_default),
         "entries": len(fday),
     }
     if goals:
@@ -129,7 +217,8 @@ def _streaks(per_day_totals, date_from, date_to, goals, tol_pct):
     return {"longest": longest, "current": current}
 
 
-def period(food, workout, bodyweight, date_from, date_to, goals=None):
+def period(food, workout, bodyweight, date_from, date_to, goals=None,
+           energy=None, basal_default=None):
     from dates import days_in
     tol = (goals or {}).get("tolerance_pct", 7)
     logged_days = sorted({r["date"] for r in food})
@@ -142,15 +231,12 @@ def period(food, workout, bodyweight, date_from, date_to, goals=None):
 
     on_target_days = sum(1 for t in per_day.values() if goals and _on_target(t, goals, tol))
 
-    bwl = sorted([r for r in bodyweight], key=lambda r: r["date"])
-    bw = None
-    if bwl:
-        bw = {
-            "start": bwl[0]["weight_kg"], "start_date": bwl[0]["date"],
-            "end": bwl[-1]["weight_kg"], "end_date": bwl[-1]["date"],
-            "delta": round(bwl[-1]["weight_kg"] - bwl[0]["weight_kg"], 1),
-            "points": len(bwl),
-        }
+    bw = _metric_trend(bodyweight, "weight_kg")  # weight trend (back-compat block)
+    bodycomp = {}
+    for f in _BODYCOMP:
+        t = _metric_trend(bodyweight, f)
+        if t:
+            bodycomp[f] = t
 
     out = {
         "from": date_from, "to": date_to,
@@ -161,6 +247,8 @@ def period(food, workout, bodyweight, date_from, date_to, goals=None):
         "workouts": summarize_workouts(workout),
         "personal_records": personal_records(workout),
         "bodyweight": bw,
+        "bodycomp": bodycomp or None,
+        "energy": _energy_period(energy, {d: per_day[d]["kcal"] for d in per_day}, basal_default),
     }
     if goals and goals.get("kcal"):
         out["on_target_days"] = on_target_days

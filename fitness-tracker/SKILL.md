@@ -2,14 +2,17 @@
 name: fitness-tracker
 description: >-
   Personal fitness and nutrition tracker: logs meals with calories and macros
-  (КБЖУ — calories/protein/fat/carbs), workouts (sets/reps/weight, cardio) and
-  bodyweight against the user's daily goals, and builds weekly/monthly/yearly
-  progress summaries. Data is stored in the user's own Notion, Google Sheets or
-  a local file, configured on first run. Use whenever the user logs what they
-  ate or how they trained, mentions calories/protein/fat/carbs/macros/КБЖУ, sets
-  or changes nutrition or fitness goals, logs their weight, sends a photo of a
-  food label, or asks for a diet or training summary, progress or stats for any
-  period — including casual phrasing like «запиши на обед 200 г курицы» or "log
+  (КБЖУ — calories/protein/fat/carbs), workouts (sets/reps/weight, cardio),
+  bodyweight and body composition (muscle/fat/water), and calories burned for
+  daily energy balance — all against the user's daily goals, with
+  weekly/monthly/yearly progress summaries. Data is stored in the user's own
+  Notion, Google Sheets or a local file, configured on first run. Use whenever
+  the user logs what they ate or how they trained, mentions
+  calories/protein/fat/carbs/macros/КБЖУ, calories burned or energy
+  balance/deficit/surplus, body composition (muscle mass, body fat, water), sets
+  or changes goals, logs their weight, sends a photo of a food label, or asks for
+  a diet or training summary, progress or stats for any period — including casual
+  phrasing like «запиши на обед 200 г курицы», «сожжено 3200 ккал» or "log
   breakfast: 2 eggs". Also handles first-time integration setup.
 ---
 
@@ -36,8 +39,9 @@ food-database lookups, goal math, aggregation) and prints JSON you parse.
 1. **Check setup.** Run `status` (see *Running the CLI*). If `config_found` is
    false or `onboarded` is false → load `references/onboarding.md` and guide
    setup. Never log or summarize before onboarding is complete.
-2. **Classify intent**: log food · log workout · log bodyweight · set/compute
-   goals · summary (day/week/month/year) · change settings · question.
+2. **Classify intent**: log food · log workout · log bodyweight / body composition ·
+   log energy (calories burned) · set/compute goals · summary (day/week/month/year) ·
+   change settings · question.
 3. **Route** to the matching reference + CLI command below.
 
 ## You ↔ CLI: division of labour
@@ -109,11 +113,35 @@ sport. Strength volume (sets·reps·weight) is computed automatically. Flags are
 `--weight` / `--duration` / `--distance` (NOT `--weight-kg` / `--duration-min` / `--distance-km`),
 plus `--sets` `--reps` `--rpe` `--notes`.
 
-## Logging bodyweight
+## Logging bodyweight & body composition
 
 ```
 python scripts/fittrack.py log-weight --date 2026-06-07 --weight 84.5
 ```
+
+Optional body-composition metrics (e.g. from a smart scale / Samsung Health) — all
+optional, log whatever the user has. Flags are plain: `--weight` `--muscle` `--fat`
+`--fat-pct` `--water`:
+
+```
+python scripts/fittrack.py log-weight --date 2026-06-07 --weight 100.8 \
+  --muscle 40.1 --fat 26.9 --fat-pct 26.7 --water 54.1
+```
+
+## Logging energy (calories burned)
+
+Energy balance = intake (food) − expenditure. Expenditure = basal (resting/BMR) +
+activity; the resting part is filled from the profile automatically, so the user
+usually enters only what their watch shows. Details: `references/energy-balance.md`.
+
+```
+# "сожгли 3200, 1200 за активность" — basal derived as 3200 − 1200
+python scripts/fittrack.py log-energy --date 2026-06-07 --total 3200 --activity 1200
+# only activity — basal auto from profile BMR; total = basal + activity
+python scripts/fittrack.py log-energy --date 2026-06-07 --activity 1200
+```
+
+The reply includes `basal_source` and the day's net (deficit/surplus) — relay the net.
 
 ## Goals
 
@@ -206,6 +234,7 @@ something) and checking it succeeds. After a token change, test in a **new chat*
 | Data fields & config shape | `references/data-model.md` |
 | Determining food macros (OFF / photo / estimate) | `references/nutrition-lookup.md` |
 | Calorie & macro goal math | `references/goals.md` |
+| Energy balance & body composition | `references/energy-balance.md` |
 | Formatting day/week/month/year summaries | `references/summaries.md` |
 | Relative-date rules | `references/date-handling.md` |
 | Proactive suggestions | `references/coaching.md` |

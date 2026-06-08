@@ -87,6 +87,28 @@ check("sheets workout type", wback["type"], "cardio")
 check("sheets workout duration", wback["duration_min"], 30.0)
 check("sheets workout empty sets->None", wback["sets"], None)
 
+# ---- energy + body-composition mapping ----
+en = storage.make_energy("2026-06-08", activity_kcal=1200, basal_kcal=2000, total_out_kcal=3200)
+ep = bn.build_props("energy", en)
+check("notion energy activity", ep["Activity kcal"], {"number": 1200.0})
+check("notion energy total", ep["Total out kcal"], {"number": 3200.0})
+check("notion energy prop names", set(ep), {n for n, _, _ in bn.SCHEMAS["energy"]})
+erow = bs.row_from_record("energy", en)
+check("sheets energy row len", len(erow), len(bs.COLUMNS["energy"]))
+eback = bs.record_from_row("energy", bs.COLUMNS["energy"], erow, 2)
+check("sheets energy rt activity", eback["activity_kcal"], 1200.0)
+check("sheets energy rt total", eback["total_out_kcal"], 3200.0)
+
+bwc = storage.make_bodyweight("2026-06-08", 100.8, muscle_kg=40.1, fat_kg=26.9, fat_pct=26.7, water_kg=54.1)
+bp = bn.build_props("bodyweight", bwc)
+check("notion bw muscle", bp["Muscle kg"], {"number": 40.1})
+check("notion bw fat_pct", bp["Fat %"], {"number": 26.7})
+check("notion bw prop names", set(bp), {n for n, _, _ in bn.SCHEMAS["bodyweight"]})
+bwrow = bs.row_from_record("bodyweight", bwc)
+bwback = bs.record_from_row("bodyweight", bs.COLUMNS["bodyweight"], bwrow, 2)
+check("sheets bw muscle rt", bwback["muscle_kg"], 40.1)
+check("sheets bw water rt", bwback["water_kg"], 54.1)
+
 if fails:
     print("FAILED:")
     for x in fails:

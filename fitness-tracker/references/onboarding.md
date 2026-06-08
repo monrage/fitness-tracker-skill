@@ -7,9 +7,10 @@ at once. Apply every choice with `config-set` so progress is saved as you go.
 
 ## Step 0 — Welcome & orient
 
-Briefly explain what the tracker will do (log food КБЖУ + workouts + weight
-against goals, with weekly/monthly/yearly summaries) and that everything is
-stored in **their own** account. Then start the wizard.
+Briefly explain what the tracker will do (log food КБЖУ + workouts + weight and
+body composition + calories burned for energy balance, against goals, with
+weekly/monthly/yearly summaries) and that everything is stored in **their own**
+account. Then start the wizard.
 
 ## Step 1 — Basics
 
@@ -59,7 +60,7 @@ Apply backend choice + credentials, e.g. Notion:
 ```
 python scripts/fittrack.py config-set --patch '{"backend":{"type":"notion","notion":{"token":"ntn_...","parent_page_id":"<page id>"}}}'
 python scripts/fittrack.py ensure-schema          # creates the databases, returns their ids
-python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases":{"food":"<id>","workout":"<id>","bodyweight":"<id>"}}}}'
+python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases":{"food":"<id>","workout":"<id>","bodyweight":"<id>","energy":"<id>"}}}}'
 ```
 (For Sheets/local the steps differ — follow the backend reference.)
 Verify real connectivity with a **read** — e.g. `summary --period day --today <today>`; a successful
@@ -84,6 +85,11 @@ python scripts/fittrack.py compute-goals --sex male --age 30 --height 182 --weig
 Show the result, let them adjust, then save the agreed numbers with `config-set`
 (and store the profile too so goals can be recomputed later). Details in
 `references/goals.md`.
+
+> Even with direct goals (path A), capturing the profile (sex/age/height/weight) is
+> worth it — it powers the **automatic resting-burn (BMR)** for energy logging, so the
+> user enters only activity. Without a profile, ask for the day's total burn instead.
+> See `references/energy-balance.md`.
 
 ## Step 4 — Nutrition lookup preference
 
@@ -129,7 +135,8 @@ Don't tell the user it's "saved" — you can't verify the Project write; confirm
 Then show 3–4 example things they can say now:
 - «запиши на обед 200 г куриной грудки и 150 г риса»
 - «сегодня жал 80 кг 5×5 и присед 100×5×5»
-- «мой вес утром 84.5»
+- «мой вес утром 84.5; мышцы 40.1, жир 26.9, вода 54.1»
+- «сегодня сожжено 3200 ккал, 1200 за активность»
 - «сводка за неделю»
 
 ## Resuming an interrupted setup

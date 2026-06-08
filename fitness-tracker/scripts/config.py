@@ -23,6 +23,7 @@ DEFAULTS = {
     "nutrition": {"provider": "claude+off", "off_enabled": True, "off_country": "ru"},
     "goals": {},
     "profile": {},
+    "energy": {},
 }
 
 

@@ -11,7 +11,7 @@
     "notion": {
       "token": "ntn_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
       "parent_page_id": "",
-      "databases": { "food": "", "workout": "", "bodyweight": "", "goals": "" }
+      "databases": { "food": "", "workout": "", "bodyweight": "", "energy": "" }
     },
     "sheets": {
       "spreadsheet_id": "",
@@ -40,5 +40,8 @@
     "weight_kg": 85,
     "activity": "moderate",
     "goal": "cut"
+  },
+  "energy": {
+    "basal_kcal": null
   }
 }

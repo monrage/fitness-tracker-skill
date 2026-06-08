@@ -20,17 +20,19 @@ from storage import Backend, KINDS
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SHEETS = "https://sheets.googleapis.com/v4/spreadsheets"
 
-TABS = {"food": "Food", "workout": "Workout", "bodyweight": "Bodyweight"}
+TABS = {"food": "Food", "workout": "Workout", "bodyweight": "Bodyweight", "energy": "Energy"}
 COLUMNS = {
     "food": ["date", "meal", "item", "qty_g", "kcal", "protein_g", "fat_g", "carbs_g", "source", "notes"],
     "workout": ["date", "type", "exercise", "sets", "reps", "weight_kg", "duration_min",
                 "distance_km", "rpe", "volume", "notes"],
-    "bodyweight": ["date", "weight_kg", "notes"],
+    "bodyweight": ["date", "weight_kg", "muscle_kg", "fat_kg", "fat_pct", "water_kg", "notes"],
+    "energy": ["date", "activity_kcal", "basal_kcal", "total_out_kcal", "notes"],
 }
 NUMERIC = {
     "food": {"qty_g", "kcal", "protein_g", "fat_g", "carbs_g"},
     "workout": {"sets", "reps", "weight_kg", "duration_min", "distance_km", "rpe", "volume"},
-    "bodyweight": {"weight_kg"},
+    "bodyweight": {"weight_kg", "muscle_kg", "fat_kg", "fat_pct", "water_kg"},
+    "energy": {"activity_kcal", "basal_kcal", "total_out_kcal"},
 }
 
 

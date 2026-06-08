@@ -2,7 +2,7 @@
 
 The canonical schema. Every backend (local / Notion / Sheets) maps these exact
 fields. The assistant builds records via `scripts/storage.py` (`make_food`,
-`make_workout`, `make_bodyweight`) so all backends receive identical, validated
+`make_workout`, `make_bodyweight`, `make_energy`) so all backends receive identical, validated
 data. Logic scripts (`summarize.py`) read these shapes back.
 
 ## Two tiers: config vs records
@@ -45,12 +45,33 @@ There are two separate stores. Don't mix them.
 | `volume` | number \| null | auto = sets·reps·weight (strength only) |
 | `notes` | string | |
 
-### bodyweight
+### bodyweight (daily body measurement)
 | field | type | notes |
 |---|---|---|
 | `date` | ISO date | required |
-| `weight_kg` | number | |
+| `weight_kg` | number \| null | optional |
+| `muscle_kg` | number \| null | skeletal muscle mass |
+| `fat_kg` | number \| null | fat mass |
+| `fat_pct` | number \| null | body-fat % |
+| `water_kg` | number \| null | total body water |
 | `notes` | string | |
+
+At least one metric (weight / muscle / fat / fat_pct / water) must be present —
+all are optional individually, so a user tracks only what their scale reports.
+
+### energy
+| field | type | notes |
+|---|---|---|
+| `date` | ISO date | required |
+| `activity_kcal` | number \| null | burned by physical activity |
+| `basal_kcal` | number \| null | resting (BMR); auto from `profile` if omitted |
+| `total_out_kcal` | number \| null | total burned; auto = basal + activity |
+| `notes` | string | |
+
+At least one of `activity_kcal` / `total_out_kcal` is required; the missing member
+of the basal/activity/total trio is derived (`total = basal + activity`). Calorie
+*intake* is **not** stored here — it comes from `food`; the daily **net = intake −
+total_out** is computed in summaries.
 
 Backends also attach an opaque `id` (and `_seq` for local) on append — never set by the assistant.
 
@@ -65,6 +86,8 @@ See `assets/config.example.json` for a full example. Key fields:
   `bodyweight_target_kg`, `tolerance_pct` (default 7 — the ± band that counts a day "on target")
 - `profile` (optional): `sex`, `age`, `height_cm`, `weight_kg`, `activity`, `goal` — used by
   `goals.py` to compute targets (Mifflin-St Jeor). Not required if goals are set directly.
+- `energy` (optional): `basal_kcal` — manual resting-burn override; if unset, basal is
+  computed from `profile` (Mifflin-St Jeor BMR) each time energy is logged.
 
 ## Units convention
 Metric is the default and what scripts compute in: mass in **grams** (food) / **kg** (body, weight

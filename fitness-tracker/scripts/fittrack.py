@@ -15,7 +15,8 @@ Examples (assistant-invoked):
       --kcal 330 --protein 62 --fat 7.2 --carbs 0 --meal lunch --qty-g 200 --source claude
   python fittrack.py log-workout --date 2026-06-07 --exercise "жим лёжа" \
       --type strength --sets 5 --reps 5 --weight 80
-  python fittrack.py log-weight --date 2026-06-07 --weight 84.5
+  python fittrack.py log-weight --date 2026-06-07 --weight 100.8 --muscle 40.1 --fat 26.9 --water 54.1
+  python fittrack.py log-energy --date 2026-06-07 --total 3200 --activity 1200
   python fittrack.py compute-goals --sex male --age 30 --height 182 --weight 85 \
       --activity moderate --goal cut
   python fittrack.py summary --period week --today 2026-06-07
@@ -51,7 +52,23 @@ def _running_day(c, date):
     return S.daily(be.query_range("food", date, date),
                    be.query_range("workout", date, date),
                    be.query_range("bodyweight", date, date),
-                   date, c.get("goals") or None)
+                   date, c.get("goals") or None,
+                   energy=be.query_range("energy", date, date),
+                   basal_default=_resolve_basal(c)[0])
+
+
+def _resolve_basal(c, override=None):
+    """Resting daily burn (kcal) + its source. Priority: explicit override >
+    config.energy.basal_kcal > Mifflin-St Jeor BMR from profile."""
+    if override not in (None, ""):
+        return round(float(override)), "override"
+    en = c.get("energy") or {}
+    if en.get("basal_kcal") not in (None, ""):
+        return round(float(en["basal_kcal"])), "config"
+    p = c.get("profile") or {}
+    if all(p.get(k) not in (None, "") for k in ("sex", "age", "height_cm", "weight_kg")):
+        return round(G.bmr_mifflin(p["sex"], p["age"], p["height_cm"], p["weight_kg"])), "profile_bmr"
+    return None, "none"
 
 
 def cmd_status(args):
@@ -114,9 +131,29 @@ def cmd_log_workout(args):
 
 def cmd_log_weight(args):
     c = _cfg(args)
-    rec = storage.make_bodyweight(args.date, args.weight, notes=args.notes or "")
+    rec = storage.make_bodyweight(args.date, args.weight, muscle_kg=args.muscle,
+                                  fat_kg=args.fat, fat_pct=args.fat_pct,
+                                  water_kg=args.water, notes=args.notes or "")
     be = storage.get_backend(c)
     _out({"stored": be.append("bodyweight", rec)})
+
+
+def cmd_log_energy(args):
+    c = _cfg(args)
+    if args.basal not in (None, ""):
+        basal, basal_src = round(float(args.basal)), "override"
+    elif args.total not in (None, "") and args.activity not in (None, ""):
+        # both numbers came from the watch → basal is exactly total − activity;
+        # don't inject the BMR estimate (it would contradict the given totals)
+        basal, basal_src = None, "derived"
+    else:
+        basal, basal_src = _resolve_basal(c)  # config override or profile BMR
+    rec = storage.make_energy(args.date, activity_kcal=args.activity,
+                              basal_kcal=basal, total_out_kcal=args.total,
+                              notes=args.notes or "")
+    be = storage.get_backend(c)
+    _out({"stored": be.append("energy", rec), "basal_source": basal_src,
+          "day": _running_day(c, args.date)})
 
 
 def cmd_compute_goals(args):
@@ -135,7 +172,9 @@ def cmd_summary(args):
               "summary": S.daily(be.query_range("food", date, date),
                                  be.query_range("workout", date, date),
                                  be.query_range("bodyweight", date, date),
-                                 date, goalsd)})
+                                 date, goalsd,
+                                 energy=be.query_range("energy", date, date),
+                                 basal_default=_resolve_basal(c)[0])})
         return
     if args.period == "week":
         a, b = D.week_bounds(args.today, ws)
@@ -152,7 +191,9 @@ def cmd_summary(args):
           "summary": S.period(be.query_range("food", a, b),
                               be.query_range("workout", a, b),
                               be.query_range("bodyweight", a, b),
-                              a, b, goalsd)})
+                              a, b, goalsd,
+                              energy=be.query_range("energy", a, b),
+                              basal_default=_resolve_basal(c)[0])})
 
 
 def cmd_config_set(args):
@@ -235,9 +276,21 @@ def build_parser():
 
     sp = sub.add_parser("log-weight")
     sp.add_argument("--date", required=True)
-    sp.add_argument("--weight", type=float, required=True)
+    sp.add_argument("--weight", type=float)
+    sp.add_argument("--muscle", type=float)
+    sp.add_argument("--fat", type=float)
+    sp.add_argument("--fat-pct", dest="fat_pct", type=float)
+    sp.add_argument("--water", type=float)
     sp.add_argument("--notes")
     sp.set_defaults(func=cmd_log_weight)
+
+    sp = sub.add_parser("log-energy")
+    sp.add_argument("--date", required=True)
+    sp.add_argument("--activity", type=float)
+    sp.add_argument("--basal", type=float)
+    sp.add_argument("--total", type=float)
+    sp.add_argument("--notes")
+    sp.set_defaults(func=cmd_log_energy)
 
     sp = sub.add_parser("compute-goals")
     sp.add_argument("--sex", required=True)

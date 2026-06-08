@@ -24,6 +24,7 @@ DB_TITLES = {
     "food": "FitnessLife — Food log",
     "workout": "FitnessLife — Workout log",
     "bodyweight": "FitnessLife — Bodyweight",
+    "energy": "FitnessLife — Energy",
 }
 
 # (Notion property name, type, our record field). First title prop per db is the row label.
@@ -44,7 +45,16 @@ SCHEMAS = {
     ],
     "bodyweight": [
         ("Entry", "title", "date"), ("Date", "date", "date"),
-        ("Weight kg", "number", "weight_kg"), ("Notes", "rich_text", "notes"),
+        ("Weight kg", "number", "weight_kg"), ("Muscle kg", "number", "muscle_kg"),
+        ("Fat kg", "number", "fat_kg"), ("Fat %", "number", "fat_pct"),
+        ("Water kg", "number", "water_kg"), ("Notes", "rich_text", "notes"),
+    ],
+    "energy": [
+        ("Entry", "title", "date"), ("Date", "date", "date"),
+        ("Activity kcal", "number", "activity_kcal"),
+        ("Basal kcal", "number", "basal_kcal"),
+        ("Total out kcal", "number", "total_out_kcal"),
+        ("Notes", "rich_text", "notes"),
     ],
 }
 SELECT_OPTIONS = {

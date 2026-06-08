@@ -27,7 +27,10 @@ you →  weekly summary
   or reads a **nutrition-label photo**. Manual entry too.
 - **Workouts:** sets × reps × weight (volume auto-computed), cardio, duration, and
   personal records.
-- **Bodyweight** trend toward your goal.
+- **Bodyweight & body composition** trend toward your goal — weight plus optional
+  muscle / fat / body-water / body-fat % from a smart scale.
+- **Energy balance:** log calories burned (resting BMR auto-computed + activity) to
+  see your daily deficit/surplus against intake, plus the fat change it predicts.
 - **Goals:** set them directly or compute from body stats (Mifflin-St Jeor).
 - **Dates:** understands "yesterday", "on Monday", `05.06`, ISO — places entries on the
   right day (RU + EN).
@@ -86,8 +89,9 @@ tests/             plain-Python test suite
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
 ## 🙏 Credits
-Created by [**monrage**](https://github.com/monrage), from an idea by a friend (to be
-credited 🙂). Designed and built in collaboration with **Claude** (Anthropic).
+Created by [**monrage**](https://github.com/monrage), from an idea by
+[**Gilbert**](https://t.me/GilbertRave). Designed and built in collaboration with
+**Claude** (Anthropic).
 
 ## 📄 License
 [MIT](LICENSE) © 2026 monrage

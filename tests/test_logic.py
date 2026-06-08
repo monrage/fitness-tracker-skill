@@ -84,6 +84,50 @@ check("PR жим volume", p["personal_records"]["жим лёжа"]["max_volume"]
 check("PR присед weight", p["personal_records"]["присед"]["max_weight"], 100.0)
 check("bw delta", p["bodyweight"]["delta"], -1.0)
 
+# ---- energy balance ----
+energy = [
+    storage.make_energy("2026-06-01", activity_kcal=600, basal_kcal=1800),    # total 2400
+    storage.make_energy("2026-06-04", total_out_kcal=2500, basal_kcal=1800),  # activity 700
+]
+check("energy total derived", energy[0]["total_out_kcal"], 2400.0)
+check("energy activity derived", energy[1]["activity_kcal"], 700.0)
+check("energy basal derived (3200-1200)",
+      storage.make_energy("2026-06-05", activity_kcal=1200, total_out_kcal=3200)["basal_kcal"], 2000.0)
+
+de = summarize.daily(food, workout, bw, "2026-06-01", G, energy=energy, basal_default=1800)
+check("daily energy total_out", de["energy"]["total_out_kcal"], 2400.0)
+check("daily net (2000-2400)", de["energy"]["net_kcal"], -400.0)
+check("daily balance deficit", de["energy"]["balance"], "deficit")
+
+# basal fallback when the record was logged without basal
+e2 = [storage.make_energy("2026-06-02", activity_kcal=500)]
+d2 = summarize.daily(food, workout, bw, "2026-06-02", G, energy=e2, basal_default=1800)
+check("daily basal fallback out (1800+500)", d2["energy"]["total_out_kcal"], 2300.0)
+check("daily net fallback (2050-2300)", d2["energy"]["net_kcal"], -250.0)
+
+pe = summarize.period(food, workout, bw, "2026-06-01", "2026-06-04", G, energy=energy, basal_default=1800)
+check("period energy days", pe["energy"]["days"], 2)
+check("period net_days", pe["energy"]["net_days"], 2)
+check("period cumulative_net", pe["energy"]["cumulative_net"], -900.0)
+check("period avg_net", pe["energy"]["avg_net_per_day"], -450.0)
+check("period expected_fat_change", pe["energy"]["expected_fat_change_kg"], round(-900 / 7700, 2))
+
+# ---- body composition (optional fields) ----
+bw2 = [
+    storage.make_bodyweight("2026-06-01", 85.0, muscle_kg=40.0, fat_kg=20.0),
+    storage.make_bodyweight("2026-06-04", 84.0, muscle_kg=40.5, fat_kg=19.0),
+]
+pc = summarize.period(food, workout, bw2, "2026-06-01", "2026-06-04", G)
+check("bodycomp muscle delta", pc["bodycomp"]["muscle_kg"]["delta"], 0.5)
+check("bodycomp fat delta", pc["bodycomp"]["fat_kg"]["delta"], -1.0)
+check("bodycomp weight end", pc["bodycomp"]["weight_kg"]["end"], 84.0)
+
+# sparse: a measurement with only one optional metric still records that metric
+bw3 = [storage.make_bodyweight("2026-06-02", fat_pct=22.5)]
+d3 = summarize.daily(food, workout, bw3, "2026-06-02", G)
+check("daily bodycomp fat_pct", d3["bodycomp"]["fat_pct"], 22.5)
+check("daily weight none when not logged", d3["bodyweight"], None)
+
 if fails:
     print("FAILED:")
     for x in fails:

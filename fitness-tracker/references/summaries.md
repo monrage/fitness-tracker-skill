@@ -35,6 +35,8 @@ CLI возвращает `{"period": "...", "summary": {...}}`. Нужно то�
 | `meals` | object | по приёму пищи: `{breakfast, lunch, dinner, snack}` → `{kcal, protein_g, fat_g, carbs_g}` |
 | `workouts` | array | сырые записи тренировок за день |
 | `bodyweight` | number\|null | вес тела в кг (или null) |
+| `bodycomp` | object\|null | замер состава тела за день — только заполненные из `{weight_kg, muscle_kg, fat_kg, fat_pct, water_kg}` |
+| `energy` | object\|null | энергобаланс дня: `{intake_kcal, basal_kcal, activity_kcal, total_out_kcal, net_kcal, balance}`; `balance` = deficit/surplus/even, `net_kcal<0` = дефицит |
 | `entries` | int | количество food-записей |
 | `vs_goal` | object | только если цели заданы: `{kcal, protein_g, fat_g, carbs_g}` → `{target, actual, pct, remaining}` |
 | `on_target` | bool | только если цели заданы; `true` = ккал и белок в пределах `tolerance_pct` (дефолт ±7%) |
@@ -68,6 +70,14 @@ CLI возвращает `{"period": "...", "summary": {...}}`. Нужно то�
 | `bodyweight.delta` | float | разница (end − start), кг |
 | `bodyweight.start_date` / `.end_date` | string | даты замеров |
 | `bodyweight.points` | int | количество замеров |
+| `bodycomp` | object\|null | по каждой метрике с данными (`weight_kg`/`muscle_kg`/`fat_kg`/`fat_pct`/`water_kg`): `{start, end, delta, start_date, end_date, points}` |
+| `energy.days` | int | дней с записью расхода |
+| `energy.avg_total_out` | float\|null | средний дневной расход, ккал |
+| `energy.avg_activity` | float\|null | средняя активность, ккал |
+| `energy.net_days` | int | дней, где есть И еда, И расход (база нетто) |
+| `energy.cumulative_net` | float | суммарный нетто за эти дни (`<0` = суммарный дефицит) |
+| `energy.avg_net_per_day` | float | средний дневной нетто |
+| `energy.expected_fat_change_kg` | float | прогноз Δжира из нетто (÷7700; `<0` = потеря) |
 
 ### avg_per_logged_day vs avg_per_calendar_day
 
@@ -89,7 +99,8 @@ CLI возвращает `{"period": "...", "summary": {...}}`. Нужно то�
 По приёмам: завтрак 420 · обед 780 · ужин 640 ккал
 
 Тренировка: жим лёжа 5×5 80 кг, присед 5×5 100 кг
-Вес тела: 84.2 кг
+Вес тела: 84.2 кг · состав: мышцы 40.1, жир 26.9, вода 54.1 кг
+Энергобаланс: 1 840 съедено − 2 600 расход = −760 ккал (дефицит) 🔥
 
 До цели: −360 ккал · −23 г белка
 ✅ Цель по калориям выполнена  /  ⚠️ Белок немного не добрал
@@ -112,6 +123,8 @@ CLI возвращает `{"period": "...", "summary": {...}}`. Нужно то�
   PR этой недели: жим лёжа — 85 кг (новый рекорд!) 🏆
 
 Вес: 84.5 → 84.0 кг (−0.5 кг)
+Состав: мышцы 40.0→40.3 (+0.3), жир 20.1→19.2 кг (−0.9)
+Энергобаланс: в среднем −650 ккал/день · накоплено −4 550 → прогноз ~−0.6 кг жира (факт −0.5)
 ```
 
 ---
@@ -124,6 +137,8 @@ CLI возвращает `{"period": "...", "summary": {...}}`. Нужно то�
 - **Серии** — максимальная серия "в цели" подряд.
 - **Новые PRs** — отметь каждый (`max_weight`, `max_volume` с датой).
 - **Вес тела** — delta + направление. Сравни с `bodyweight_target_kg` из goals, если задан.
+- **Состав тела** — тренд мышц / жира / воды (`bodycomp`), если есть замеры.
+- **Энергобаланс** — средний нетто, суммарный дефицит/профицит, прогноз Δжира (`expected_fat_change_kg`) vs фактический Δжира/веса — главная корреляция.
 - **Макро-паттерны** — что стабильно западает (белок, перекорм по жирам и т. д.).
 - **Тренировочный объём** — `total_volume`, `sessions`, `by_type`.
 

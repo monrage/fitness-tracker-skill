@@ -53,9 +53,24 @@
     {
       "date": "2026-06-07",
       "weight_kg": 84.5,
+      "muscle_kg": null,
+      "fat_kg": null,
+      "fat_pct": null,
+      "water_kg": null,
       "notes": "",
       "_seq": 1,
       "id": "b000001"
+    }
+  ],
+  "energy": [
+    {
+      "date": "2026-06-07",
+      "activity_kcal": 1200,
+      "basal_kcal": 2000,
+      "total_out_kcal": 3200,
+      "notes": "",
+      "_seq": 1,
+      "id": "e000001"
     }
   ]
 }

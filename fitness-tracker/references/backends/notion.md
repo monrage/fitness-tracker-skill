@@ -1,6 +1,6 @@
 # Backend: Notion
 
-Данные хранятся в вашем Notion-аккаунте — три базы создаются автоматически.
+Данные хранятся в вашем Notion-аккаунте — четыре базы создаются автоматически.
 Работает через официальный Internal Integration API (версия `2022-06-28`).
 
 ---
@@ -9,7 +9,7 @@
 
 1. Создайте (или откройте) **workspace** в Notion.
 2. Создайте в нём **чистую страницу** (например, `FitnessLife`) — лишнее содержимое
-   можно удалить. Под этой страницей скилл создаст три базы данных.
+   можно удалить. Под этой страницей скилл создаст четыре базы данных.
 3. Скопируйте **ссылку на страницу**: кнопка **Share** (или `•••` вверху справа) →
    **Copy link**. Либо возьмите URL прямо из адресной строки браузера. Ссылка
    понадобится дальше — из неё Claude извлечёт `parent_page_id`.
@@ -36,7 +36,7 @@
 
 Отправьте в чат **токен** (`ntn_…`) и **ссылку на страницу** — вместе, одним сообщением.
 Дальше Claude сделает всё сам: извлечёт `parent_page_id` из ссылки, сохранит токен и id
-в конфиг, создаст три базы (`ensure-schema`) и запишет их id.
+в конфиг, создаст четыре базы (`ensure-schema`) и запишет их id.
 
 Эквивалент вручную (если делаете сами): `parent_page_id` — это 32 hex-символа из ссылки
 на страницу (между последним `/` и `?`, без дефисов).
@@ -53,7 +53,7 @@ python scripts/fittrack.py config-set --patch '{"backend":{"type":"notion","noti
 python scripts/fittrack.py ensure-schema
 ```
 
-Команда создаёт три базы под родительской страницей и возвращает их id:
+Команда создаёт четыре базы под родительской страницей и возвращает их id:
 
 ```json
 {
@@ -61,7 +61,8 @@ python scripts/fittrack.py ensure-schema
   "databases": {
     "food":        "<database_id>",
     "workout":     "<database_id>",
-    "bodyweight":  "<database_id>"
+    "bodyweight":  "<database_id>",
+    "energy":      "<database_id>"
   },
   "created": { ... }
 }
@@ -70,7 +71,7 @@ python scripts/fittrack.py ensure-schema
 Сохраните полученные id:
 
 ```
-python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases":{"food":"<id>","workout":"<id>","bodyweight":"<id>"}}}}'
+python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases":{"food":"<id>","workout":"<id>","bodyweight":"<id>","energy":"<id>"}}}}'
 ```
 
 `ensure-schema` — идемпотентная операция: повторный запуск ничего не сломает.
@@ -117,6 +118,21 @@ python scripts/fittrack.py config-set --patch '{"backend":{"notion":{"databases"
 | Entry | title | — |
 | Date | date | — |
 | Weight kg | number | — |
+| Muscle kg | number | — |
+| Fat kg | number | — |
+| Fat % | number | — |
+| Water kg | number | — |
+| Notes | rich_text | — |
+
+### FitnessLife — Energy
+
+| Свойство | Тип Notion | Значения (select) |
+|---|---|---|
+| Entry | title | — |
+| Date | date | — |
+| Activity kcal | number | — |
+| Basal kcal | number | — |
+| Total out kcal | number | — |
 | Notes | rich_text | — |
 
 ---
