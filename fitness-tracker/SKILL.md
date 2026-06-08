@@ -29,7 +29,10 @@ food-database lookups, goal math, aggregation) and prints JSON you parse.
    `./fitness-config.json` (and `fitness-data.json` too, for the local backend). If no file
    by that exact name is attached but the Project contains a JSON that looks like this config
    (has `backend` / `goals` / `onboarded` keys), use it anyway and recreate it as
-   `./fitness-config.json`. If neither the sandbox nor the Project has it → treat as first run.
+   `./fitness-config.json`. If the Project shows **more than one** `fitness-config.json` (a stale
+   duplicate from re-saving), prefer the **newest** and tell the user to delete the older copies —
+   exactly one must remain, or stale settings (old token / db ids) may load. If neither the sandbox
+   nor the Project has it → treat as first run.
 1. **Check setup.** Run `status` (see *Running the CLI*). If `config_found` is
    false or `onboarded` is false → load `references/onboarding.md` and guide
    setup. Never log or summarize before onboarding is complete.
@@ -155,6 +158,14 @@ goals, **secrets**, backend pointer).
   previous version). State that exact filename explicitly every time — the user types it by hand,
   and the stable name is how you find it next session. Never claim it's saved; confirm only what
   the user reports doing.
+- **One file only.** Exactly one `fitness-config.json` must exist in the Project. Re-saving an updated
+  version often **adds a duplicate** rather than replacing it — remind the user to delete the older
+  copy, or a stale config (old token / db ids) may load.
+- **Changes apply in a NEW chat.** Project knowledge is read at the **start of a conversation**, so a
+  config you just changed (rotated token, edited goals) takes effect only after the user opens a **new
+  chat in the same Project** — the current chat keeps the old copy. Say this whenever the config changes.
+- **One Project, many chats.** Every chat inside a Project shares the same `fitness-config.json` (and the
+  Notion/Sheets data) — encourage a dedicated Project and reassure the user they can open as many chats as they like.
 - With **Notion / Sheets**, logged records live in the user's cloud — only this small config
   file must persist. With the **local** backend, `fitness-data.json` holds the records too and
   must be saved to the Project the same way. See `references/backends/local.md`.
@@ -178,6 +189,11 @@ chat does NOT take effect — after changing the domain allowlist the user must 
 and if a backend call fails mid-setup, tell the user to fix the allowlist, **save the config first**
 (see *Persistence*), then reopen in a new chat — you will resume from the saved config (see
 *Resuming* in `references/onboarding.md`).
+
+**Verifying a backend actually works.** `ensure-schema` is a **no-op when the database ids are already
+in config** — it just returns them without calling Notion/Sheets. Don't infer "the connection works"
+from it. A real round-trip happens only on read/write, so confirm by running a `summary` (or logging
+something) and checking it succeeds. After a token change, test in a **new chat** — the new token loads only then.
 
 ## Reference map
 

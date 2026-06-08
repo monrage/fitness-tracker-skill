@@ -41,7 +41,8 @@ you →  weekly summary
    uploading the skill, creating a **project**, preparing **Notion**, and **saving the
    config** to the project.
 
-Requirements: a paid claude.ai plan (Pro / Max / Team) with **code execution** enabled.
+Requirements: a paid claude.ai plan (Pro / Max / Team) with **code execution** enabled, using the
+**Sonnet or Opus** model (verified — Haiku is not recommended, it can mis-scale food macros).
 
 ## 🧠 How it works
 - **You ↔ CLI split.** Claude handles language, macro estimation, and vision (label

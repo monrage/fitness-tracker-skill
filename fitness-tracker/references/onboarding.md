@@ -113,6 +113,14 @@ so the user does it manually:
    If their UI shows **Add to project** on the artifact, that works too — but the name must end up
    exactly `fitness-config.json`, otherwise step 0 won't find it next time.
 3. For the **local** backend, do the same with `fitness-data.json` after each session.
+4. **Keep exactly one** `fitness-config.json` in the Project. Saving an updated version often creates a
+   **second file with the same name** instead of replacing it — tell the user to delete the older copy,
+   otherwise a stale config may load.
+
+Two things to tell the user plainly:
+- The saved config **loads only at the start of a new chat** — if they update it (token, goals), they
+  open a **new chat in this Project** to pick it up; the current chat keeps the old copy.
+- Inside one Project they can open **as many chats as they want** — all share this config and data.
 
 Don't tell the user it's "saved" — you can't verify the Project write; confirm only what they report.
 
